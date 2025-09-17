@@ -25,6 +25,14 @@ public class Seguridad : MonoBehaviour
         if (Distancia < RangoVision)
         {
             Persiguiendo = true;
+            if (Distancia < 2f)
+            {
+                ComboMinijuego combo = FindObjectOfType<ComboMinijuego>();
+                if (combo != null)
+                {
+                    combo.Activar(Objetivo.GetComponent<PlayerController>());
+                }
+            }
         }
         else if (Distancia > RangoVision + 3f)
         {

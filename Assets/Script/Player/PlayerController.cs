@@ -197,4 +197,9 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+    public void RealizarDash()
+    {
+        Vector3 dashDir = (transform.position - FindObjectOfType<Seguridad>().transform.position).normalized;
+        controller.Move(dashDir * 5f); // Ajusta la fuerza del dash
+    }
 }
