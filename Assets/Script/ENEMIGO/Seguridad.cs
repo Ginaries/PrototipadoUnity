@@ -28,11 +28,12 @@ public class Seguridad : MonoBehaviour
             if (Distancia < 2f)
             {
                 ComboMinijuego combo = FindObjectOfType<ComboMinijuego>();
-                if (combo != null)
+                if (combo != null && !combo.EstaActivo())
                 {
                     combo.Activar(Objetivo.GetComponent<PlayerController>());
                 }
             }
+
         }
         else if (Distancia > RangoVision + 3f)
         {

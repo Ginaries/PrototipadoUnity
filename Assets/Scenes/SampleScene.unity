@@ -590,7 +590,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ComboMinijuego
   canvasCombo: {fileID: 644621505}
   comboText: {fileID: 1273867500}
-  tiempoMax: 2
+  tiempoPorTecla: 3
 --- !u!4 &191165931
 Transform:
   m_ObjectHideFlags: 0
@@ -3647,7 +3647,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: asd
+  m_Text: 
 --- !u!222 &1273867501
 CanvasRenderer:
   m_ObjectHideFlags: 0

@@ -3,22 +3,18 @@ using UnityEngine.UI;
 
 public class ComboMinijuego : MonoBehaviour
 {
+    public bool EstaActivo() => activo;
     public GameObject canvasCombo;
     public Text comboText;
-    public float tiempoMax = 2f;
+    public float tiempoPorTecla = 3f;
 
     private string[] teclas = { "A", "D", "W", "S" };
-    private string comboActual = "";
+    private string[] comboActual = new string[3];
     private int indice = 0;
     private float tiempoRestante;
     private bool activo = false;
+    private bool fallo = false;
     private PlayerController player;
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-
-    }
 
     // Update is called once per frame
     void Update()
@@ -26,24 +22,35 @@ public class ComboMinijuego : MonoBehaviour
         if (!activo) return;
 
         tiempoRestante -= Time.unscaledDeltaTime;
-        if (Input.anyKeyDown)
+
+        if (!fallo && Input.anyKeyDown)
         {
-            if (Input.GetKeyDown(comboActual.ToLower()))
+            KeyCode teclaActual = (KeyCode)System.Enum.Parse(typeof(KeyCode), comboActual[indice]);
+
+            if (Input.GetKeyDown(teclaActual))
             {
-                // Dash exitoso
-                player.RealizarDash();
-                Desactivar();
+                indice++;
+                if (indice >= comboActual.Length)
+                {
+                    // Dash exitoso
+                    player.RealizarDash();
+                    Desactivar();
+                    return;
+                }
+                else
+                {
+                    SiguienteTecla();
+                }
             }
             else
             {
-                // Falló el combo
-                Desactivar();
+                MostrarPerdiste();
             }
         }
 
-        if (tiempoRestante <= 0)
+        if (!fallo && tiempoRestante <= 0)
         {
-            Desactivar();
+            MostrarPerdiste();
         }
     }
 
@@ -51,12 +58,32 @@ public class ComboMinijuego : MonoBehaviour
     {
         player = p;
         canvasCombo.SetActive(true);
-        comboActual = teclas[Random.Range(0, teclas.Length)];
-        comboText.text = comboActual;
+
+        // Genera una secuencia de 3 teclas aleatorias
+        for (int i = 0; i < comboActual.Length; i++)
+        {
+            comboActual[i] = teclas[Random.Range(0, teclas.Length)];
+        }
         indice = 0;
-        tiempoRestante = tiempoMax;
+        fallo = false;
+        SiguienteTecla();
         activo = true;
         Time.timeScale = 0.2f; // efecto de cámara lenta opcional
+    }
+
+    void SiguienteTecla()
+    {
+        KeyCode teclaActual = (KeyCode)System.Enum.Parse(typeof(KeyCode), comboActual[indice]);
+        comboText.text = "Presiona: " + teclaActual;
+        tiempoRestante = tiempoPorTecla; // siempre resetea el contador
+    }
+
+
+    void MostrarPerdiste()
+    {
+        comboText.text = "¡Perdiste!";
+        fallo = true;
+        Invoke(nameof(Desactivar), 1.5f); // Espera un poco antes de cerrar
     }
 
     public void Desactivar()
