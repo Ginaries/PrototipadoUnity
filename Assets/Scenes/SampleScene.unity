@@ -157,7 +157,7 @@ MonoBehaviour:
   deceleration: 10
   cameraTransform: {fileID: 330585546}
   mouseSensitivity: 3
-  distanceFromPlayer: 4
+  distanceFromPlayer: 2
   cameraHeight: 2
   climbDistance: 0.2
   climbSpeed: 5
@@ -2481,7 +2481,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Seguridad
   Agente: {fileID: 1811444869}
-  VelocidadPatrulla: 1.2
+  VelocidadPatrulla: 2
   Persiguiendo: 0
   RangoVision: 5.74
   Distancia: 0

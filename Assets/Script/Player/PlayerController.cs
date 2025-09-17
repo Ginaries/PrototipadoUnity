@@ -16,7 +16,7 @@ public class PlayerController : MonoBehaviour
     [Header("Cámara")]
     public Transform cameraTransform;
     public float mouseSensitivity = 3f;
-    public float distanceFromPlayer = 4f;
+    public float distanceFromPlayer = 2.5f;
     public float cameraHeight = 2f;
 
     [Header("Trepar")]
@@ -88,12 +88,31 @@ public class PlayerController : MonoBehaviour
         pitch -= Input.GetAxis("Mouse Y") * mouseSensitivity;
         pitch = Mathf.Clamp(pitch, -30f, 60f);
 
-        Vector3 targetPos = transform.position
-                          - (Quaternion.Euler(0, yaw, 0) * Vector3.forward * distanceFromPlayer)
-                          + Vector3.up * cameraHeight;
+        // Cambia la altura del pivot para que apunte al gato (ajusta 0.5f según tu modelo)
+        Vector3 pivot = transform.position + Vector3.up * 0.5f;
 
-        cameraTransform.position = targetPos;
-        cameraTransform.LookAt(transform.position + Vector3.up * 1.2f);
+        Quaternion rotation = Quaternion.Euler(pitch, yaw, 0);
+        Vector3 desiredCameraOffset = rotation * new Vector3(0, 0, -distanceFromPlayer);
+        Vector3 desiredCameraPos = pivot + desiredCameraOffset;
+
+        // Raycast para evitar atravesar paredes
+        RaycastHit hit;
+        float minDistance = 0.5f; // Distancia mínima para que la cámara no entre en el personaje
+        Vector3 direction = (desiredCameraPos - pivot).normalized;
+        float maxDistance = distanceFromPlayer;
+
+        if (Physics.SphereCast(pivot, 0.2f, direction, out hit, maxDistance))
+        {
+            float hitDist = Mathf.Max(hit.distance - 0.1f, minDistance);
+            cameraTransform.position = pivot + direction * hitDist;
+        }
+        else
+        {
+            cameraTransform.position = desiredCameraPos;
+        }
+
+        // Ahora la cámara mira al pivot más bajo (el gato)
+        cameraTransform.LookAt(pivot);
     }
 
     void Saltar()
