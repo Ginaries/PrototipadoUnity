@@ -21,7 +21,18 @@ public class Seguridad : MonoBehaviour
     {
         Distancia = Vector3.Distance(Agente.transform.position, Objetivo.position);
 
-        // Detectar al jugador
+        PlayerController player = Objetivo.GetComponent<PlayerController>();
+
+        if (player != null && player.IsInTheBox())
+        {
+            // Si el jugador está en la caja segura, no lo persigue
+            Persiguiendo = false;
+            Agente.speed = 0;
+            anim.CrossFade(idle);
+            return; // salir del Update
+        }
+
+        // Detectar al jugador solo si no está en la zona segura
         if (Distancia < RangoVision)
         {
             Persiguiendo = true;
@@ -30,10 +41,9 @@ public class Seguridad : MonoBehaviour
                 ComboMinijuego combo = FindObjectOfType<ComboMinijuego>();
                 if (combo != null && !combo.EstaActivo())
                 {
-                    combo.Activar(Objetivo.GetComponent<PlayerController>());
+                    combo.Activar(player);
                 }
             }
-
         }
         else if (Distancia > RangoVision + 3f)
         {
@@ -41,19 +51,19 @@ public class Seguridad : MonoBehaviour
         }
 
         // Comportamiento del enemigo
-        if (Persiguiendo == false)
+        if (!Persiguiendo)
         {
             Agente.speed = 0;
             anim.CrossFade(idle);
         }
-        else if (Persiguiendo == true)
+        else
         {
             Agente.speed = VelocidadPatrulla;
             Agente.SetDestination(Objetivo.position);
             anim.CrossFade(Correr);
         }
-
     }
+
     void OnDrawGizmos()
     {
         Gizmos.color = Color.red;

@@ -19,4 +19,5 @@ public class Interactuable : MonoBehaviour
         // Aplicar fuerza en la dirección indicada
         rb.AddForce(direccion * pushForce, ForceMode.Impulse);
     }
+   
 }

@@ -28,7 +28,17 @@ public class PlayerController : MonoBehaviour
     private CharacterController controller;
     private float yaw;
     private float pitch;
+     private bool isInTheBox = false; // jugador en zona segura
 
+    public bool IsInTheBox()
+    {
+        return isInTheBox;
+    }
+
+    public void SetInSafeZone(bool state)
+    {
+        isInTheBox = state;
+    }
     void Start()
     {
         controller = GetComponent<CharacterController>();
