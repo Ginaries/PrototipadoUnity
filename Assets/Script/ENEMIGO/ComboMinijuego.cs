@@ -91,5 +91,11 @@ public class ComboMinijuego : MonoBehaviour
         canvasCombo.SetActive(false);
         activo = false;
         Time.timeScale = 1f;
+
+        if (player != null)
+        {
+            player.DistraccionActiva = false;
+            player.AtencionActual = player.AtencionMax; // resetea la atención a 10
+        }
     }
 }

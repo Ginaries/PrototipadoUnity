@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
+
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
@@ -25,6 +26,18 @@ public class PlayerController : MonoBehaviour
     private bool isClimbing = false;
     private Collider climbingCol;
 
+    [Header("Combo")]
+    public ComboMinijuego comboMinijuego;
+
+    [Header("Atención")]
+    public int AtencionMax = 10;
+    public int AtencionActual;
+    public bool DistraccionActiva = false;
+
+    private float tiempoReduccion = 1f; // cada 1 seg baja 1 punto (la tiro, dsps se cambia si no xd)
+    private float proximoTick = 0f;
+
+
     private CharacterController controller;
     private float yaw;
     private float pitch;
@@ -43,15 +56,33 @@ public class PlayerController : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
         Cursor.lockState = CursorLockMode.Locked;
+        AtencionActual = AtencionMax;
     }
 
     void Update()
     {
+        if (DistraccionActiva)
+        {
+            // Si está distraído, no puede moverse
+            return;
+        }
         HandleMovement();
         HandleCamera();
         Saltar();
         AgarrarCosas();
         Trepar();
+    }
+    void OnGUI()
+    {
+        GUIStyle estilo = new GUIStyle();
+        estilo.fontSize = 40; // más grande
+        estilo.normal.textColor = Color.red;
+        estilo.alignment = TextAnchor.MiddleCenter; // centrado
+
+        // posición en pantalla, un poco arriba del gato
+        Vector3 posPantalla = Camera.main.WorldToScreenPoint(transform.position + Vector3.up * 2);
+        GUI.Label(new Rect(posPantalla.x - 50, Screen.height - posPantalla.y, 100, 40),
+                  AtencionActual.ToString(), estilo);
     }
 
     void HandleMovement()
@@ -207,9 +238,34 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+    public void ReducirAtencionGradual()
+    {
+        if (!DistraccionActiva && Time.time >= proximoTick)
+        {
+            proximoTick = Time.time + tiempoReduccion;
+            AtencionActual = Mathf.Max(AtencionActual - 1, 0);
+            Debug.Log("Atención actual: " + AtencionActual);
+
+            if (AtencionActual <= 0)
+            {
+                DistraccionActiva = true;
+                Debug.Log("El gato está distraído, activar combo!");
+
+                if (comboMinijuego != null)
+                {
+                    comboMinijuego.Activar(this);
+                }
+                else
+                {
+                    Debug.LogError("ERROR");
+                }
+            }
+        }
+    }
     public void RealizarDash()
     {
-        Vector3 dashDir = (transform.position - FindObjectOfType<Seguridad>().transform.position).normalized;
+        Vector3 dashDir = (transform.position - Object.FindAnyObjectByType<Seguridad>().transform.position).normalized;
         controller.Move(dashDir * 5f); // Ajusta la fuerza del dash
     }
+
 }

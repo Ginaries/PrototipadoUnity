@@ -1,73 +1,87 @@
 using UnityEngine;
-
 using UnityEngine.AI;
+using System.Collections;
 
 public class Seguridad : MonoBehaviour
 {
+    [Header("Componentes")]
     public NavMeshAgent Agente;
-    public float VelocidadPatrulla = 3.5f;
-    public bool Persiguiendo = false;
+
+    [Header("Patrulla Random")]
+    public float RangoPatrulla = 10f;   // radio en el que se mueve al azar
+    public float VelocidadPatrulla = 2f;
+    public float TiempoEspera = 2f;     // cuánto se queda quieto cuando decide parar
+    [Range(0f, 1f)] public float ProbabilidadDeParar = 0.3f; // 30% de chance de detenerse
+    private bool esperando = false;
+
+    [Header("Gato")]
     public float RangoVision = 10f;
-    public float Distancia;
-    public Transform Objetivo;
+    public Transform Objetivo; // referencia al gato
 
-    [Header("Animaciones")]
-    public Animation anim;
-    public string Correr;
-    public string idle;
+    void Start()
+    {
+        if (Agente == null)
+            Agente = GetComponent<NavMeshAgent>();
 
+        IrAPuntoAleatorio(); // arranca moviéndose
+    }
 
     void Update()
     {
-        Distancia = Vector3.Distance(Agente.transform.position, Objetivo.position);
+        // detectar al gato
+        float distanciaGato = Vector3.Distance(transform.position, Objetivo.position);
+        PlayerController gato = Objetivo.GetComponent<PlayerController>();
 
-        PlayerController player = Objetivo.GetComponent<PlayerController>();
-
-        if (player != null && player.IsInTheBox())
+        if (gato != null && distanciaGato <= RangoVision)
         {
-            // Si el jugador está en la caja segura, no lo persigue
-            Persiguiendo = false;
-            Agente.speed = 0;
-            anim.CrossFade(idle);
-            return; // salir del Update
+            gato.ReducirAtencionGradual();
         }
 
-        // Detectar al jugador solo si no está en la zona segura
-        if (Distancia < RangoVision)
+        // cuando llega a destino
+        if (!esperando && !Agente.pathPending && Agente.remainingDistance <= Agente.stoppingDistance)
         {
-            Persiguiendo = true;
-            if (Distancia < 2f)
+            // decide si se queda quieto o sigue de inmediato
+            if (Random.value < ProbabilidadDeParar)
             {
-                ComboMinijuego combo = FindObjectOfType<ComboMinijuego>();
-                if (combo != null && !combo.EstaActivo())
-                {
-                    combo.Activar(player);
-                }
+                StartCoroutine(Esperar());
+            }
+            else
+            {
+                IrAPuntoAleatorio(); // sigue caminando sin parar
             }
         }
-        else if (Distancia > RangoVision + 3f)
-        {
-            Persiguiendo = false;
-        }
+    }
 
-        // Comportamiento del enemigo
-        if (!Persiguiendo)
-        {
-            Agente.speed = 0;
-            anim.CrossFade(idle);
-        }
-        else
+    IEnumerator Esperar()
+    {
+        esperando = true;
+        Debug.Log("Guardia se detuvo un momento.");
+        yield return new WaitForSeconds(TiempoEspera);
+        IrAPuntoAleatorio();
+        esperando = false;
+    }
+
+    void IrAPuntoAleatorio()
+    {
+        Vector3 randomDir = Random.insideUnitSphere * RangoPatrulla;
+        randomDir += transform.position;
+
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(randomDir, out hit, RangoPatrulla, NavMesh.AllAreas))
         {
             Agente.speed = VelocidadPatrulla;
-            Agente.SetDestination(Objetivo.position);
-            anim.CrossFade(Correr);
+            Agente.SetDestination(hit.position);
+            Debug.Log("Guardia yendo a: " + hit.position);
         }
     }
 
     void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(Agente.transform.position, RangoVision);
+        Gizmos.DrawWireSphere(transform.position, RangoVision);
 
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, RangoPatrulla);
     }
 }
+
