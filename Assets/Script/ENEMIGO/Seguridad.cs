@@ -7,6 +7,11 @@ public class Seguridad : MonoBehaviour
     [Header("Componentes")]
     public NavMeshAgent Agente;
 
+    [Header("Animaciones")]
+    public Animation anim;
+    public string Correr;
+    public string idle;
+
     [Header("Patrulla Random")]
     public float RangoPatrulla = 10f;   // radio en el que se mueve al azar
     public float VelocidadPatrulla = 2f;
@@ -37,20 +42,30 @@ public class Seguridad : MonoBehaviour
             gato.ReducirAtencionGradual();
         }
 
+        // controlar animaciones según la velocidad del agente
+        if (Agente.velocity.magnitude > 0.1f)
+        {
+            anim.CrossFade(Correr, 0.2f); // transición suave
+        }
+        else
+        {
+            anim.CrossFade(idle, 0.2f);
+        }
+
         // cuando llega a destino
         if (!esperando && !Agente.pathPending && Agente.remainingDistance <= Agente.stoppingDistance)
         {
-            // decide si se queda quieto o sigue de inmediato
             if (Random.value < ProbabilidadDeParar)
             {
                 StartCoroutine(Esperar());
             }
             else
             {
-                IrAPuntoAleatorio(); // sigue caminando sin parar
+                IrAPuntoAleatorio();
             }
         }
     }
+
 
     IEnumerator Esperar()
     {
@@ -71,6 +86,7 @@ public class Seguridad : MonoBehaviour
         {
             Agente.speed = VelocidadPatrulla;
             Agente.SetDestination(hit.position);
+            anim.Play(Correr);
             Debug.Log("Guardia yendo a: " + hit.position);
         }
     }
