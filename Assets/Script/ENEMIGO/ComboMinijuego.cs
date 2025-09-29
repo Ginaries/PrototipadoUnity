@@ -1,14 +1,18 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class ComboMinijuego : MonoBehaviour
 {
     public bool EstaActivo() => activo;
-    public GameObject canvasCombo;
-    public Text comboText;
-    public float tiempoPorTecla = 3f;
 
-    private string[] teclas = { "A", "D", "W", "S" };
+    [Header("UI")]
+    public Text comboText;
+    public Text textoEXCELENTE;
+
+    [Header("Configuración")]
+    public float tiempoPorTecla = 3f;
+    private string[] teclas = { "Q", "E", "Alpha1", "Alpha2", "Alpha3", "Space", "Z", "X", "C" };
     private string[] comboActual = new string[3];
     private int indice = 0;
     private float tiempoRestante;
@@ -16,7 +20,15 @@ public class ComboMinijuego : MonoBehaviour
     private bool fallo = false;
     private PlayerController player;
 
-    // Update is called once per frame
+    // 🔹 NUEVO: evento que avisa al guardia si el combo terminó
+    public System.Action<bool> OnComboTerminado;
+
+    void Start()
+    {
+        if (comboText != null)
+            comboText.gameObject.SetActive(false);
+    }
+
     void Update()
     {
         if (!activo) return;
@@ -32,9 +44,14 @@ public class ComboMinijuego : MonoBehaviour
                 indice++;
                 if (indice >= comboActual.Length)
                 {
-                    // Dash exitoso
+                    // ✅ Combo exitoso
                     player.RealizarDash();
+                    textoEXCELENTE.text = "¡EXCELENTE!";
+                    player.AumentarAtencion();
                     Desactivar();
+
+                    // 🔹 Avisar al guardia que el combo terminó con éxito
+                    OnComboTerminado?.Invoke(true);
                     return;
                 }
                 else
@@ -57,45 +74,59 @@ public class ComboMinijuego : MonoBehaviour
     public void Activar(PlayerController p)
     {
         player = p;
-        canvasCombo.SetActive(true);
+        if (comboText != null)
+            comboText.gameObject.SetActive(true);
 
-        // Genera una secuencia de 3 teclas aleatorias
+        // genera 3 teclas aleatorias
         for (int i = 0; i < comboActual.Length; i++)
         {
             comboActual[i] = teclas[Random.Range(0, teclas.Length)];
         }
+
         indice = 0;
         fallo = false;
         SiguienteTecla();
         activo = true;
-        Time.timeScale = 0.2f; // efecto de cámara lenta opcional
+        Time.timeScale = 0.2f; // cámara lenta opcional
     }
 
     void SiguienteTecla()
     {
         KeyCode teclaActual = (KeyCode)System.Enum.Parse(typeof(KeyCode), comboActual[indice]);
         comboText.text = "Presiona: " + teclaActual;
-        tiempoRestante = tiempoPorTecla; // siempre resetea el contador
+        tiempoRestante = tiempoPorTecla;
     }
-
 
     void MostrarPerdiste()
     {
+        textoEXCELENTE.text = "";
         comboText.text = "¡Perdiste!";
         fallo = true;
-        Invoke(nameof(Desactivar), 1.5f); // Espera un poco antes de cerrar
+
+        // 🔹 Avisar al guardia que el combo terminó (fallo = false)
+        OnComboTerminado?.Invoke(false);
+
+        Invoke(nameof(ReiniciarNivel), 1.5f);
+    }
+
+    public void ReiniciarNivel()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void Desactivar()
     {
-        canvasCombo.SetActive(false);
+        if (comboText != null)
+            comboText.gameObject.SetActive(false);
+
         activo = false;
         Time.timeScale = 1f;
 
         if (player != null)
         {
             player.DistraccionActiva = false;
-            player.AtencionActual = player.AtencionMax; // resetea la atención a 10
+            player.ActualizarBarraAtencion();
         }
     }
 }

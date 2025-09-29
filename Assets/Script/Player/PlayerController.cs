@@ -1,6 +1,6 @@
 using System.Collections;
 using UnityEngine;
-
+using UnityEngine.UI;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
@@ -30,22 +30,31 @@ public class PlayerController : MonoBehaviour
     public ComboMinijuego comboMinijuego;
 
     [Header("Atención")]
-    public int AtencionMax = 10;
-    public int AtencionActual;
+    public float AtencionMax = 10f;
+    public float AtencionActual;
     public bool DistraccionActiva = false;
 
     private float tiempoReduccion = 1f; // cada 1 seg baja 1 punto (la tiro, dsps se cambia si no xd)
     private float proximoTick = 0f;
 
+    //Barra de atención en GUI
+    public Image barradeatencion;
 
     private CharacterController controller;
     private float yaw;
     private float pitch;
     private bool isInTheBox = false; // jugador en zona segura
 
+
     public bool IsInTheBox()
     {
         return isInTheBox;
+    }
+
+    public void ActualizarBarraAtencion()
+    {
+        if (barradeatencion != null)
+            barradeatencion.fillAmount = AtencionActual / AtencionMax;
     }
 
     public void SetInSafeZone(bool state)
@@ -58,9 +67,10 @@ public class PlayerController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         AtencionActual = AtencionMax;
     }
-
     void Update()
     {
+
+        ActualizarBarraAtencion();
         if (DistraccionActiva)
         {
             // Si está distraído, no puede moverse
@@ -71,21 +81,8 @@ public class PlayerController : MonoBehaviour
         Saltar();
         AgarrarCosas();
         Trepar();
-    }
-    void OnGUI()
-    {
-        GUIStyle estilo = new GUIStyle();
-        estilo.fontSize = 40; // más grande
-        estilo.normal.textColor = Color.red;
-        estilo.alignment = TextAnchor.MiddleCenter; // centrado
-
-        // posición en pantalla, un poco arriba del gato
-        Vector3 posPantalla = Camera.main.WorldToScreenPoint(transform.position + Vector3.up * 2);
-        GUI.Label(new Rect(posPantalla.x - 50, Screen.height - posPantalla.y, 100, 40),
-                  AtencionActual.ToString(), estilo);
-    }
-
-    void HandleMovement()
+    } 
+    public void HandleMovement()
     {
         // si estoy trepando, no procesar movimiento normal
         if (isClimbing)
@@ -123,7 +120,7 @@ public class PlayerController : MonoBehaviour
         controller.Move(velocity * Time.deltaTime);
     }
 
-    void HandleCamera()
+    public void HandleCamera()
     {
         yaw += Input.GetAxis("Mouse X") * mouseSensitivity;
         pitch -= Input.GetAxis("Mouse Y") * mouseSensitivity;
@@ -156,7 +153,7 @@ public class PlayerController : MonoBehaviour
         cameraTransform.LookAt(pivot);
     }
 
-    void Saltar()
+    public void Saltar()
     {
         if (isClimbing) return; // no saltar mientras trepás
 
@@ -164,7 +161,7 @@ public class PlayerController : MonoBehaviour
             velocity.y = Mathf.Sqrt(-2f * gravity * 1.5f);
     }
 
-    void AgarrarCosas()
+    public void AgarrarCosas()
     {
         if (isClimbing) return;
 
@@ -173,18 +170,24 @@ public class PlayerController : MonoBehaviour
             RaycastHit hit;
             if (Physics.Raycast(transform.position + Vector3.up * 0.5f, transform.forward, out hit, 3f))
             {
-                Debug.Log("Agarraste: " + hit.collider.name);
-                Interactuable interactuable = hit.collider.GetComponent<Interactuable>();
-                if (interactuable != null)
+                GameObject obj = hit.collider.gameObject;
+
+                // Solo interactuables, NO recogibles
+                if (obj.CompareTag("Interactuable"))
                 {
-                    Vector3 direccionEmpuje = transform.forward;
-                    interactuable.Interactuar(direccionEmpuje);
+                    Interactuable interactuable = obj.GetComponent<Interactuable>();
+                    if (interactuable != null)
+                    {
+                        Vector3 direccionEmpuje = transform.forward;
+                        interactuable.Interactuar(direccionEmpuje);
+                        Debug.Log("Empujaste: " + obj.name);
+                    }
                 }
             }
         }
     }
 
-    void Trepar()
+    public void Trepar()
     {
         if (isClimbing)
         {
@@ -262,10 +265,21 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+    // subir atención al completar el minijuego, debe realizar el combo correctamente, el mismo se va a activar cuando el jugador pierda toda la atencion
+    public void AumentarAtencion()
+    {
+        AtencionActual = AtencionMax;
+        DistraccionActiva = false;
+        ActualizarBarraAtencion();
+        Debug.Log("Atención restaurada al máximo: " + AtencionActual);
+    }
+
+    // ESTE Realizardash ya no se usa, lo dejo por las dudas capaz en un futuro lo necesito
     public void RealizarDash()
     {
         Vector3 dashDir = (transform.position - Object.FindAnyObjectByType<Seguridad>().transform.position).normalized;
         controller.Move(dashDir * 5f); // Ajusta la fuerza del dash
     }
 
+    
 }

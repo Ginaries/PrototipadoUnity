@@ -1,25 +1,44 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class Distraccion : MonoBehaviour
 {
-    [Header("Distraccion")]
-    public int puntosARestar = 2;      // cuanto baja la atencion al acercarse
-    public float radio = 2f;           // rango mas chico que el guardia
-    public bool dibujarGizmo = true;   // para ver el radio en escena
+    [Header("Distracción")]
+    public int puntosARestar = 2;          // cuánto baja la atención al acercarse
+    public float radio = 2f;               // rango de detección
+    public bool dibujarGizmo = true;       // para ver el radio en escena
+
+    [Header("Reacción Física")]
+    public float fuerzaEmpuje = 6f;        // fuerza con la que se aleja del jugador
+    public float torque = 3f;              // cuánta rotación aplica al rodar
+    public float cooldownEmpuje = 1.5f;    // evita aplicar fuerza constantemente
 
     private PlayerController gato;
-    private bool estabaDentro = false; // aplicar una sola vez por acercamiento
+    private Rigidbody rb;
+    private bool estabaDentro = false;
+    private float proximoEmpuje = 0f;
 
     void Start()
     {
         gato = FindFirstObjectByType<PlayerController>();
+        rb = GetComponent<Rigidbody>();
+
         if (gato == null)
-            Debug.LogWarning("Distraccion: no encontre PlayerController en escena"); //ante la duda ah
+            Debug.LogWarning("Distraccion: no encontré PlayerController en escena");
+
+        if (rb == null)
+            Debug.LogError("Distraccion necesita un Rigidbody en el mismo objeto!");
+        else
+        {
+            rb.isKinematic = false;
+            rb.useGravity = true;
+            rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+        }
     }
 
     void Update()
     {
-        if (gato == null) return;
+        if (gato == null || rb == null) return;
         if (gato.DistraccionActiva) return;
 
         float distancia = Vector3.Distance(transform.position, gato.transform.position);
@@ -27,9 +46,12 @@ public class Distraccion : MonoBehaviour
 
         if (dentro && !estabaDentro)
         {
+            // 🔹 Bajar atención
             gato.AtencionActual = Mathf.Max(gato.AtencionActual - puntosARestar, 0);
-            Debug.Log("Distraccion activada -> atencion actual: " + gato.AtencionActual);
+            gato.ActualizarBarraAtencion();
+            Debug.Log("Distracción activada -> atención actual: " + gato.AtencionActual);
 
+            // 🔹 Activar combo si llega a 0
             if (gato.AtencionActual <= 0)
             {
                 gato.DistraccionActiva = true;
@@ -37,6 +59,15 @@ public class Distraccion : MonoBehaviour
                 {
                     gato.comboMinijuego.Activar(gato);
                 }
+            }
+
+            // 🔹 Empujar físicamente la esfera
+            if (Time.time >= proximoEmpuje)
+            {
+                Vector3 direccionEmpuje = (transform.position - gato.transform.position).normalized + Vector3.up * 0.3f;
+                rb.AddForce(direccionEmpuje * fuerzaEmpuje, ForceMode.Impulse);
+                rb.AddTorque(Random.insideUnitSphere * torque, ForceMode.Impulse);
+                proximoEmpuje = Time.time + cooldownEmpuje;
             }
 
             estabaDentro = true;
@@ -55,4 +86,3 @@ public class Distraccion : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, radio);
     }
 }
-
