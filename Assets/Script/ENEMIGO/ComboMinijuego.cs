@@ -45,7 +45,6 @@ public class ComboMinijuego : MonoBehaviour
                 if (indice >= comboActual.Length)
                 {
                     // ✅ Combo exitoso
-                    player.RealizarDash();
                     textoEXCELENTE.text = "¡EXCELENTE!";
                     player.AumentarAtencion();
                     Desactivar();
