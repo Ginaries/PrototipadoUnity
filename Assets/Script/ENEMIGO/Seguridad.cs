@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
 using UnityEngine.UI;
-using UnityEditor;
 
 public class Seguridad : MonoBehaviour
 {
@@ -28,11 +27,14 @@ public class Seguridad : MonoBehaviour
     public ComboMinijuego comboMinijuego;
 
     [Header("Detección y Cooldown")]
-    public float tiempoGracia = 10f; // segundos sin detectar
-    private bool enCooldown = false; // si está en gracia o no
+    public float tiempoGracia = 10f;
+    private bool enCooldown = false;
 
-    // drop de item si el completas el combo exitosamente al interactuar presionando la E
+    [Header("Drop de ítem")]
     public GameObject itemADroppear;
+
+    // Nueva bandera para validar si el jugador está en rango
+    private bool jugadorEnRango = false;
 
     void Start()
     {
@@ -41,7 +43,6 @@ public class Seguridad : MonoBehaviour
 
         IrAPuntoAleatorio();
 
-        // Si el minijuego tiene eventos o callbacks, podés engancharlos así:
         if (comboMinijuego != null)
         {
             comboMinijuego.OnComboTerminado += OnComboTerminado;
@@ -50,8 +51,6 @@ public class Seguridad : MonoBehaviour
 
     void Update()
     {
-
-
         // Animaciones
         if (Agente.velocity.magnitude > 0.1f)
             anim.CrossFade(Correr, 0.2f);
@@ -66,12 +65,16 @@ public class Seguridad : MonoBehaviour
             else
                 IrAPuntoAleatorio();
         }
-        if (enCooldown) return; // si está en periodo de gracia, no hace nada
+
+        if (enCooldown) return;
 
         float distanciaGato = Vector3.Distance(transform.position, Objetivo.position);
         PlayerController gato = Objetivo.GetComponent<PlayerController>();
 
-        if (gato != null && distanciaGato <= RangoVision)
+        // Actualizamos si el jugador está en rango
+        jugadorEnRango = (gato != null && distanciaGato <= RangoVision);
+
+        if (jugadorEnRango)
         {
             gato.ReducirAtencionGradual();
             MostrarTextoAyuda("¡Presiona E para distraer al guardia!");
@@ -87,12 +90,16 @@ public class Seguridad : MonoBehaviour
                 LimpiarTextoAyuda();
             }
         }
+        else
+        {
+            LimpiarTextoAyuda();
+        }
     }
 
-    // 🔹 Este método se llama al terminar el combo (bien o mal)
+    //  Este método se llama al terminar el combo (bien o mal)
     public void OnComboTerminado(bool exito)
     {
-        if (exito && itemADroppear != null)
+        if (exito && itemADroppear != null && jugadorEnRango)
         {
             Instantiate(itemADroppear, transform.position + Vector3.right, Quaternion.identity);
         }
@@ -100,7 +107,7 @@ public class Seguridad : MonoBehaviour
         LimpiarTextoAyuda();
     }
 
-    // 🔹 Coroutine de cooldown / periodo de gracia
+    //  Coroutine de cooldown / periodo de gracia
     IEnumerator CooldownDeteccion()
     {
         enCooldown = true;

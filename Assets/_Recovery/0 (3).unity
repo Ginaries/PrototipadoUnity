@@ -5336,7 +5336,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Distraccion
   puntosARestar: 2
-  radio: 1
+  radio: 2
   dibujarGizmo: 1
   fuerzaEmpuje: 6
   torque: 3
@@ -5925,7 +5925,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Distraccion
   puntosARestar: 2
-  radio: 1
+  radio: 2
   dibujarGizmo: 1
   fuerzaEmpuje: 6
   torque: 3

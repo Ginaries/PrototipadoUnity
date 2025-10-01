@@ -2,49 +2,44 @@ using UnityEngine;
 
 public class PUERTA : MonoBehaviour
 {
-    //si el jugador tiene la llave
+    [Header("Estado")]
     public bool tieneLlave = false;
-    //el objeto llave
-    public GameObject llave;
-    //si la puerta esta abierta
     public bool puertaAbierta = false;
-    //abrir la puerta a traves de rotar el objeto
+
+    [Header("Animación")]
+    public float gradosAbrir = 90f;
+    public float duracionRotacion = 0.6f; // segundos
+    private bool rotando = false;
+
     public void AbrirPuerta()
     {
-        if (tieneLlave && !puertaAbierta)
-        {
-            //rotarla 90 grados en el eje y lentamente hasta llegar a los 90 grados
-            float rotacionActual = transform.rotation.eulerAngles.y;
-            float rotacionObjetivo = rotacionActual + 90f;
-            float velocidadRotacion = 10f; // Velocidad de rotación
-            float tiempoTranscurrido = 0f;
-            while (tiempoTranscurrido < 1f)
-            {
-                tiempoTranscurrido += Time.deltaTime * velocidadRotacion;
-                float nuevaRotacion = Mathf.Lerp(rotacionActual, rotacionObjetivo, tiempoTranscurrido);
-                transform.rotation = Quaternion.Euler(0f, nuevaRotacion, 0f);
-            }
-            
-
-        }
+        if (!tieneLlave || puertaAbierta || rotando) return;
+        StartCoroutine(RotarPuerta());
     }
-    //hacer el metodo tiene llave publico para que pueda ser llamado desde otro script
+
     public void TieneLlave()
     {
         tieneLlave = true;
         AbrirPuerta();
     }
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        //ejecutar una prueba para abrir la puerta
-        //tieneLlave = true;
-        //AbrirPuerta();
-    }
 
-    // Update is called once per frame
-    void Update()
+    private System.Collections.IEnumerator RotarPuerta()
     {
-        
+        rotando = true;
+
+        Quaternion inicio = transform.rotation;
+        Quaternion destino = Quaternion.Euler(0f, transform.rotation.eulerAngles.y + gradosAbrir, 0f);
+
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime / duracionRotacion;
+            transform.rotation = Quaternion.Slerp(inicio, destino, Mathf.SmoothStep(0f, 1f, t));
+            yield return null; // cede el frame
+        }
+
+        transform.rotation = destino;
+        puertaAbierta = true;
+        rotando = false;
     }
 }
