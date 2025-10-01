@@ -69,7 +69,8 @@ public class PlayerController : MonoBehaviour
     }
     void Update()
     {
-
+        // Reducir atención gradualmente lentamente
+        ReducirAtencionLento();
         ActualizarBarraAtencion();
         if (DistraccionActiva)
         {
@@ -273,7 +274,31 @@ public class PlayerController : MonoBehaviour
         ActualizarBarraAtencion();
         Debug.Log("Atención restaurada al máximo: " + AtencionActual);
     }
+    //reducir la atencion muy lentamente mientras el jugador se mueve de por si, somos un gato, puede perder la atencion para lamerse
+    public void ReducirAtencionLento()
+    {
+        if (!DistraccionActiva && Time.time >= proximoTick)
+        {
+            proximoTick = Time.time + (tiempoReduccion * 5); // reducir más lento
+            AtencionActual = Mathf.Max(AtencionActual - 1.0f, 0); // reducir menos
+            Debug.Log("Atención actual (lento): " + AtencionActual);
 
+            if (AtencionActual <= 0)
+            {
+                DistraccionActiva = true;
+                Debug.Log("El gato está distraído, activar combo!");
+
+                if (comboMinijuego != null)
+                {
+                    comboMinijuego.Activar(this);
+                }
+                else
+                {
+                    Debug.LogError("ERROR");
+                }
+            }
+        }
+    }
     // ESTE Realizardash ya no se usa, lo dejo por las dudas capaz en un futuro lo necesito
     public void RealizarDash()
     {
