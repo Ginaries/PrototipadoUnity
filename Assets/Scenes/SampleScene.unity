@@ -261,6 +261,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 633a82c347d369242ad74838428bec5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  missionManager: {fileID: 505358258}
+  llavePerdida: {fileID: 701556704}
+  guardia: {fileID: 1811444870}
   speed: 5
   rotationSpeed: 720
   gravity: -9.81
@@ -2662,6 +2665,55 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 114065218}
   m_SourcePrefab: {fileID: 100100000, guid: d44e8e75f0b1acd409730f81c8eb073f, type: 3}
+--- !u!1 &505358254
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 505358257}
+  - component: {fileID: 505358258}
+  m_Layer: 0
+  m_Name: MIsiones
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &505358257
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 505358254}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 28.91163, y: -0.67672, z: 4.06549}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &505358258
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 505358254}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40960728ecdd4324c80fdd7fdf7da8ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Misiones
+  textoMision: {fileID: 0}
+  misiones:
+  - "Misi\xF3n 1: Encuentra la llave perdida."
+  - "Misi\xF3n 2: Interactua con el Guardia"
+  misionActual: 0
 --- !u!1001 &566261357
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8873,8 +8925,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PUERTA
   tieneLlave: 0
-  llave: {fileID: 701556704}
   puertaAbierta: 0
+  gradosAbrir: 90
+  duracionRotacion: 0.6
 --- !u!4 &1943960540
 Transform:
   m_ObjectHideFlags: 0
@@ -9530,3 +9583,4 @@ SceneRoots:
   - {fileID: 6152823}
   - {fileID: 31273678}
   - {fileID: 1943960540}
+  - {fileID: 505358257}

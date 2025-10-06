@@ -1,10 +1,17 @@
 using System.Collections;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
+    //no me aparece en el inspector
+    [Header("Misiones")]
+    public Misiones missionManager;
+    public GameObject llavePerdida; // referencia al objeto llave
+    public Seguridad guardia; // referencia al guardia
+
     [Header("Movimiento")]
     public float speed = 5f;
     public float rotationSpeed = 10f;
@@ -69,9 +76,13 @@ public class PlayerController : MonoBehaviour
     }
     void Update()
     {
+        if (Input.GetKey(KeyCode.M))
+            Debug.Log("M está siendo presionada");
+
         // Reducir atención gradualmente lentamente
         ReducirAtencionLento();
         ActualizarBarraAtencion();
+
         if (DistraccionActiva)
         {
             // Si está distraído, no puede moverse
@@ -82,7 +93,7 @@ public class PlayerController : MonoBehaviour
         Saltar();
         AgarrarCosas();
         Trepar();
-    } 
+    }
     public void HandleMovement()
     {
         // si estoy trepando, no procesar movimiento normal
@@ -123,37 +134,67 @@ public class PlayerController : MonoBehaviour
 
     public void HandleCamera()
     {
+        bool mirarObjetivoAhora = Input.GetKey(KeyCode.M);
+
+        Vector3 pivot = transform.position + Vector3.up * 0.5f;
+        Quaternion rotation;
+
+        if (mirarObjetivoAhora && missionManager != null)
+        {
+            Transform objetivo = null;
+            int EnQueMisionEstamos = missionManager.misionActual;
+
+            if (EnQueMisionEstamos == 0 && llavePerdida != null)
+                objetivo = llavePerdida.transform;
+            else if (EnQueMisionEstamos == 1 && guardia != null)
+                objetivo = guardia.transform;
+
+            if (objetivo != null)
+            {
+                // Calcula la dirección hacia el objetivo
+                Vector3 direccion = (objetivo.position - pivot).normalized;
+                rotation = Quaternion.LookRotation(direccion);
+
+                // Calcula la posición de la cámara detrás del jugador, mirando al objetivo
+                Vector3 desiredCameraPos = pivot - direccion * distanceFromPlayer;
+
+                // Opcional: ajusta la altura si quieres
+                desiredCameraPos.y = pivot.y + cameraHeight;
+
+                cameraTransform.position = desiredCameraPos;
+                cameraTransform.rotation = rotation;
+                return; // Salimos para no aplicar la lógica normal
+            }
+        }
+
+        // --- Lógica normal de cámara ---
         yaw += Input.GetAxis("Mouse X") * mouseSensitivity;
         pitch -= Input.GetAxis("Mouse Y") * mouseSensitivity;
         pitch = Mathf.Clamp(pitch, -30f, 60f);
 
-        // Cambia la altura del pivot para que apunte al gato (ajusta 0.5f según tu modelo)
-        Vector3 pivot = transform.position + Vector3.up * 0.5f;
+        rotation = Quaternion.Euler(pitch, yaw, 0);
 
-        Quaternion rotation = Quaternion.Euler(pitch, yaw, 0);
-        Vector3 desiredCameraOffset = rotation * new Vector3(0, 0, -distanceFromPlayer);
-        Vector3 desiredCameraPos = pivot + desiredCameraOffset;
+        Vector3 normalOffset = rotation * new Vector3(0, 0, -distanceFromPlayer);
+        Vector3 normalCameraPos = pivot + normalOffset;
 
-        // Raycast para evitar atravesar paredes
+        // --- Raycast para evitar atravesar paredes ---
         RaycastHit hit;
-        float minDistance = 0.5f; // Distancia mínima para que la cámara no entre en el personaje
-        Vector3 direction = (desiredCameraPos - pivot).normalized;
+        float minDistance = 0.5f;
+        Vector3 directionNormal = (normalCameraPos - pivot).normalized;
         float maxDistance = distanceFromPlayer;
 
-        if (Physics.SphereCast(pivot, 0.2f, direction, out hit, maxDistance))
+        if (Physics.SphereCast(pivot, 0.2f, directionNormal, out hit, maxDistance))
         {
             float hitDist = Mathf.Max(hit.distance - 0.1f, minDistance);
-            cameraTransform.position = pivot + direction * hitDist;
+            cameraTransform.position = pivot + directionNormal * hitDist;
         }
         else
         {
-            cameraTransform.position = desiredCameraPos;
+            cameraTransform.position = normalCameraPos;
         }
 
-        // Ahora la cámara mira al pivot más bajo (el gato)
-        cameraTransform.LookAt(pivot);
+        cameraTransform.rotation = rotation;
     }
-
     public void Saltar()
     {
         if (isClimbing) return; // no saltar mientras trepás
@@ -161,7 +202,6 @@ public class PlayerController : MonoBehaviour
         if (controller.isGrounded && Input.GetKeyDown(KeyCode.Space))
             velocity.y = Mathf.Sqrt(-2f * gravity * 1.5f);
     }
-
     public void AgarrarCosas()
     {
         if (isClimbing) return;
@@ -187,7 +227,6 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-
     public void Trepar()
     {
         if (isClimbing)
@@ -266,7 +305,7 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-    // subir atención al completar el minijuego, debe realizar el combo correctamente, el mismo se va a activar cuando el jugador pierda toda la atencion
+    // subir atención al completar el minijuego, debe realizar el combo correctamente, el mismo se va a activar cuando el jugador pierda toda la atencion    
     public void AumentarAtencion()
     {
         AtencionActual = AtencionMax;
@@ -305,6 +344,4 @@ public class PlayerController : MonoBehaviour
         Vector3 dashDir = (transform.position - Object.FindAnyObjectByType<Seguridad>().transform.position).normalized;
         controller.Move(dashDir * 5f); // Ajusta la fuerza del dash
     }
-
-    
 }
