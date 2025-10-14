@@ -18,8 +18,7 @@ public class PlayerController : MonoBehaviour
     public float gravity = -9.81f;
     private Vector3 velocity;
     private Vector3 currentVelocity = Vector3.zero;
-    public float acceleration = 10f;
-    public float deceleration = 8f;
+
 
     [Header("Cámara")]
     public Transform cameraTransform;
@@ -96,7 +95,7 @@ public class PlayerController : MonoBehaviour
         Trepar();
     }
     private float tiempoCambioDireccion = 0f;
-private Vector3 direccionAleatoria = Vector3.zero;
+    private Vector3 direccionAleatoria = Vector3.zero;
 
     void ComportamientoDistraido()
     {
@@ -128,43 +127,93 @@ private Vector3 direccionAleatoria = Vector3.zero;
         controller.Move(velocity * Time.deltaTime);
     }
 
+
+    // --- Variables globales ---
+    private float coyoteTime = 0.15f;
+    private float coyoteCounter;
+    private float jumpForce = 2.0f;
+    private float groundedGravity = -2f; // leve presión al suelo
+    private float gravityForce = -9.81f;
+    private Vector3 moveInput = Vector3.zero;
+
+
+    // NUEVO: para detectar si estaba en el suelo el frame anterior
+    private bool wasGrounded = false;
+
+    // 🧭 --- MOVIMIENTO GENERAL ---
     public void HandleMovement()
     {
-        // si estoy trepando, no procesar movimiento normal
         if (isClimbing)
         {
-            currentVelocity = Vector3.zero;
             velocity = Vector3.zero;
             return;
         }
 
-        float h = Input.GetAxis("Horizontal");
-        float v = Input.GetAxis("Vertical");
+        // --- Entrada del jugador ---
+        float h = Input.GetAxisRaw("Horizontal");
+        float v = Input.GetAxisRaw("Vertical");
+        moveInput = new Vector3(h, 0, v).normalized;
 
-        Vector3 inputDir = new Vector3(h, 0, v).normalized;
-        Vector3 targetDirection = Vector3.zero;
+        // --- Dirección relativa a la cámara ---
+        Vector3 camForward = cameraTransform.forward;
+        Vector3 camRight = cameraTransform.right;
+        camForward.y = 0f;
+        camRight.y = 0f;
+        camForward.Normalize();
+        camRight.Normalize();
 
-        if (inputDir.magnitude >= 0.1f)
+        Vector3 moveDir = (camForward * v + camRight * h).normalized;
+
+        if (moveDir.sqrMagnitude > 0.01f)
+            transform.forward = moveDir;
+
+        Vector3 move = moveDir * speed;
+
+        // --- COYOTE TIME ---
+        if (controller.isGrounded)
         {
-            float targetAngle = Mathf.Atan2(inputDir.x, inputDir.z) * Mathf.Rad2Deg + cameraTransform.eulerAngles.y;
-            Quaternion targetRotation = Quaternion.Euler(0, targetAngle, 0);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-
-            targetDirection = targetRotation * Vector3.forward;
+            coyoteCounter = coyoteTime;
+            if (!wasGrounded)
+                velocity.y = groundedGravity; // reset vertical
+        }
+        else
+        {
+            coyoteCounter -= Time.deltaTime;
         }
 
-        if (targetDirection != Vector3.zero)
-            currentVelocity = Vector3.MoveTowards(currentVelocity, targetDirection * speed, acceleration * Time.deltaTime);
-        else
-            currentVelocity = Vector3.MoveTowards(currentVelocity, Vector3.zero, deceleration * Time.deltaTime);
+        // --- GRAVEDAD ---
+        if (!controller.isGrounded)
+        {
+            velocity.y += gravityForce * Time.deltaTime;
+        }
+        else if (velocity.y < 0f)
+        {
+            velocity.y = groundedGravity;
+        }
 
-        controller.Move(currentVelocity * Time.deltaTime);
+        // --- MOVIMIENTO FINAL ---
+        Vector3 finalVelocity = move + new Vector3(0, velocity.y, 0);
+        controller.Move(finalVelocity * Time.deltaTime);
 
-        if (controller.isGrounded && velocity.y < 0) velocity.y = -2f;
-
-        velocity.y += gravity * Time.deltaTime;
-        controller.Move(velocity * Time.deltaTime);
+        wasGrounded = controller.isGrounded;
     }
+
+
+    // 🐾 --- SALTO SEPARADO ---
+    public void Saltar()
+    {
+        // Evitar saltar si está escalando o distraído
+        if (isClimbing || DistraccionActiva)
+            return;
+
+        // Saltar solo si se presiona Space y está dentro del tiempo de coyote
+        if (Input.GetButtonDown("Jump") && coyoteCounter > 0f)
+        {
+            velocity.y = Mathf.Sqrt(jumpForce * -2f * gravityForce);
+            coyoteCounter = 0f;
+        }
+    }
+
 
     public void HandleCamera()
     {
@@ -228,13 +277,6 @@ private Vector3 direccionAleatoria = Vector3.zero;
         }
 
         cameraTransform.rotation = rotation;
-    }
-    public void Saltar()
-    {
-        if (isClimbing) return; // no saltar mientras trepás
-
-        if (controller.isGrounded && Input.GetKeyDown(KeyCode.Space))
-            velocity.y = Mathf.Sqrt(-2f * gravity * 1.5f);
     }
     public void AgarrarCosas()
     {
@@ -351,7 +393,7 @@ private Vector3 direccionAleatoria = Vector3.zero;
             Debug.Log("Atención restaurada al máximo: " + AtencionActual);
         }
         return;
-            
+
     }
     //reducir la atencion muy lentamente mientras el jugador se mueve de por si, somos un gato, puede perder la atencion para lamerse
     public void ReducirAtencionLento()
