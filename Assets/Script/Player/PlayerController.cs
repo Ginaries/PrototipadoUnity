@@ -51,6 +51,14 @@ public class PlayerController : MonoBehaviour
     private float pitch;
     private bool isInTheBox = false; // jugador en zona segura
 
+// 👇 --- Sistema de burbuja de interacción ---
+[Header("Burbuja de Interacción")]
+public GameObject bubbleUI;         // Asigná aquí el objeto de UI con el PNG
+public Transform bubbleAnchor;      // Un Empty encima de la cabeza
+public Camera mainCamera;
+
+private RectTransform bubbleRect;
+    private bool bubbleVisible = false;
 
     public bool IsInTheBox()
     {
@@ -72,6 +80,16 @@ public class PlayerController : MonoBehaviour
         controller = GetComponent<CharacterController>();
         Cursor.lockState = CursorLockMode.Locked;
         AtencionActual = AtencionMax;
+
+        
+    if (bubbleUI != null)
+    {
+        bubbleRect = bubbleUI.GetComponent<RectTransform>();
+        bubbleUI.SetActive(false);
+    }
+
+    if (mainCamera == null)
+        mainCamera = Camera.main;
     }
     void Update()
     {
@@ -93,10 +111,38 @@ public class PlayerController : MonoBehaviour
         Saltar();
         AgarrarCosas();
         Trepar();
+
+        
+    if (bubbleVisible && bubbleUI != null)
+    {
+        Vector3 screenPos = mainCamera.WorldToScreenPoint(bubbleAnchor.position);
+        bubbleRect.position = screenPos;
+    }
+
     }
     private float tiempoCambioDireccion = 0f;
     private Vector3 direccionAleatoria = Vector3.zero;
+    public void ShowBubble()
+    {
+        if (bubbleUI != null)
+        {
+            Debug.Log("ShowBubble llamado");
+            if (bubbleUI != null)
+            {
+                bubbleUI.SetActive(true);
+                bubbleVisible = true;
+            }
+        }
+    }
 
+public void HideBubble()
+{
+    if (bubbleUI != null)
+    {
+        bubbleUI.SetActive(false);
+        bubbleVisible = false;
+    }
+}
     void ComportamientoDistraido()
     {
         // Cambiar de dirección cada cierto tiempo
@@ -427,3 +473,4 @@ public class PlayerController : MonoBehaviour
         controller.Move(dashDir * 5f); // Ajusta la fuerza del dash
     }
 }
+

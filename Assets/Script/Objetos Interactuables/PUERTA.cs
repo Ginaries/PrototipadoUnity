@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class PUERTA : MonoBehaviour
 {
@@ -10,6 +11,10 @@ public class PUERTA : MonoBehaviour
     public float gradosAbrir = 90f;
     public float duracionRotacion = 0.6f; // segundos
     private bool rotando = false;
+
+    [Header("UI Cartel")]
+    public GameObject cartelPuertaAbierta; // 👈 arrastrá el PNG acá en el inspector
+    public float duracionCartel = 2f; // segundos que dura en pantalla
 
     public void AbrirPuerta()
     {
@@ -23,7 +28,7 @@ public class PUERTA : MonoBehaviour
         AbrirPuerta();
     }
 
-    private System.Collections.IEnumerator RotarPuerta()
+    private IEnumerator RotarPuerta()
     {
         rotando = true;
 
@@ -35,11 +40,24 @@ public class PUERTA : MonoBehaviour
         {
             t += Time.deltaTime / duracionRotacion;
             transform.rotation = Quaternion.Slerp(inicio, destino, Mathf.SmoothStep(0f, 1f, t));
-            yield return null; // cede el frame
+            yield return null;
         }
 
         transform.rotation = destino;
         puertaAbierta = true;
         rotando = false;
+
+        // 👇 mostrar cartel cuando termina de abrir
+        if (cartelPuertaAbierta != null)
+        {
+            StartCoroutine(MostrarCartel());
+        }
+    }
+
+    private IEnumerator MostrarCartel()
+    {
+        cartelPuertaAbierta.SetActive(true);
+        yield return new WaitForSeconds(duracionCartel);
+        cartelPuertaAbierta.SetActive(false);
     }
 }
