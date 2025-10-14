@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 
 public class ComboMinijuego : MonoBehaviour
 {
@@ -12,15 +11,14 @@ public class ComboMinijuego : MonoBehaviour
 
     [Header("Configuración")]
     public float tiempoPorTecla = 3f;
+
     private string[] teclas = { "Q", "E", "Alpha1", "Alpha2", "Alpha3", "Space", "Z", "X", "C" };
     private string[] comboActual = new string[3];
     private int indice = 0;
     private float tiempoRestante;
     private bool activo = false;
-    private bool fallo = false;
     private PlayerController player;
 
-    // 🔹 NUEVO: evento que avisa al guardia si el combo terminó
     public System.Action<bool> OnComboTerminado;
 
     void Start()
@@ -35,38 +33,48 @@ public class ComboMinijuego : MonoBehaviour
 
         tiempoRestante -= Time.unscaledDeltaTime;
 
-        if (!fallo && Input.anyKeyDown)
+        if (Input.anyKeyDown)
         {
             KeyCode teclaActual = (KeyCode)System.Enum.Parse(typeof(KeyCode), comboActual[indice]);
 
             if (Input.GetKeyDown(teclaActual))
             {
-                indice++;
-                if (indice >= comboActual.Length)
-                {
-                    // ✅ Combo exitoso
-                    textoEXCELENTE.text = "¡EXCELENTE!";
-                    player.AumentarAtencion();
-                    Desactivar();
+                // ✅ Tecla correcta
+                player.AumentarAtencion(); // usa el método original
+                textoEXCELENTE.text = "¡EXCELENTE!";
 
-                    // 🔹 Avisar al guardia que el combo terminó con éxito
+                // 🔹 Si ya tiene la atención al máximo, se termina el minijuego
+                if (player.AtencionActual >= player.AtencionMax)
+                {
+                    textoEXCELENTE.text = "¡Atención completa!";
+                    Desactivar();
                     OnComboTerminado?.Invoke(true);
                     return;
                 }
-                else
+
+                indice++;
+
+                if (indice >= comboActual.Length)
                 {
-                    SiguienteTecla();
+                    // genera un nuevo combo
+                    Activar(player);
+                    return;
                 }
+
+                SiguienteTecla();
             }
             else
             {
-                MostrarPerdiste();
+                // 🔸 tecla incorrecta → solo mensaje, no se pierde
+                textoEXCELENTE.text = "Fallo...";
             }
         }
 
-        if (!fallo && tiempoRestante <= 0)
+        if (tiempoRestante <= 0)
         {
-            MostrarPerdiste();
+            // ⏰ si el tiempo se acaba, se pasa a un nuevo combo
+            textoEXCELENTE.text = "Tarde...";
+            Activar(player);
         }
     }
 
@@ -83,10 +91,9 @@ public class ComboMinijuego : MonoBehaviour
         }
 
         indice = 0;
-        fallo = false;
         SiguienteTecla();
         activo = true;
-        Time.timeScale = 0.2f; // cámara lenta opcional
+        Time.timeScale = 0.2f;
     }
 
     void SiguienteTecla()
@@ -94,24 +101,6 @@ public class ComboMinijuego : MonoBehaviour
         KeyCode teclaActual = (KeyCode)System.Enum.Parse(typeof(KeyCode), comboActual[indice]);
         comboText.text = "Presiona: " + teclaActual;
         tiempoRestante = tiempoPorTecla;
-    }
-
-    void MostrarPerdiste()
-    {
-        textoEXCELENTE.text = "";
-        comboText.text = "¡Perdiste!";
-        fallo = true;
-
-        // 🔹 Avisar al guardia que el combo terminó (fallo = false)
-        OnComboTerminado?.Invoke(false);
-
-        Invoke(nameof(ReiniciarNivel), 1.5f);
-    }
-
-    public void ReiniciarNivel()
-    {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void Desactivar()

@@ -263,7 +263,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   missionManager: {fileID: 505358258}
   llavePerdida: {fileID: 701556704}
-  guardia: {fileID: 1811444870}
+  guardia: {fileID: 1811444866}
   speed: 5
   rotationSpeed: 720
   gravity: -9.81

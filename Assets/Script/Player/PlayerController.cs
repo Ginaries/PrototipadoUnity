@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour
     [Header("Misiones")]
     public Misiones missionManager;
     public GameObject llavePerdida; // referencia al objeto llave
-    public Seguridad guardia; // referencia al guardia
+    public GameObject guardia; // referencia al guardia
 
     [Header("Movimiento")]
     public float speed = 5f;
@@ -79,21 +79,55 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKey(KeyCode.M))
             Debug.Log("M está siendo presionada");
 
-        // Reducir atención gradualmente lentamente
         ReducirAtencionLento();
         ActualizarBarraAtencion();
 
+        // 💤 Si está distraído, el jugador no controla al gato, pero éste se mueve solo
         if (DistraccionActiva)
         {
-            // Si está distraído, no puede moverse
+            ComportamientoDistraido();
             return;
         }
+
         HandleMovement();
         HandleCamera();
         Saltar();
         AgarrarCosas();
         Trepar();
     }
+    private float tiempoCambioDireccion = 0f;
+private Vector3 direccionAleatoria = Vector3.zero;
+
+    void ComportamientoDistraido()
+    {
+        // Cambiar de dirección cada cierto tiempo
+        if (Time.time >= tiempoCambioDireccion)
+        {
+            tiempoCambioDireccion = Time.time + Random.Range(1f, 3f);
+            direccionAleatoria = new Vector3(Random.Range(-1f, 1f), 0, Random.Range(-1f, 1f)).normalized;
+        }
+
+        // mover al gato
+        Vector3 movimiento = direccionAleatoria * (speed * 0.5f);
+        controller.Move(movimiento * Time.deltaTime);
+
+        // 🧭 girar hacia la dirección de movimiento
+        if (movimiento.magnitude > 0.1f)
+        {
+            Quaternion rotacionObjetivo = Quaternion.LookRotation(movimiento);
+            transform.rotation = Quaternion.Slerp(transform.rotation, rotacionObjetivo, Time.deltaTime * 3f);
+        }
+
+        // saltos ocasionales
+        if (controller.isGrounded && Random.value < 0.005f)
+        {
+            velocity.y = Mathf.Sqrt(-2f * gravity * 1.2f);
+        }
+
+        velocity.y += gravity * Time.deltaTime;
+        controller.Move(velocity * Time.deltaTime);
+    }
+
     public void HandleMovement()
     {
         // si estoy trepando, no procesar movimiento normal
@@ -308,10 +342,16 @@ public class PlayerController : MonoBehaviour
     // subir atención al completar el minijuego, debe realizar el combo correctamente, el mismo se va a activar cuando el jugador pierda toda la atencion    
     public void AumentarAtencion()
     {
-        AtencionActual = AtencionMax;
-        DistraccionActiva = false;
-        ActualizarBarraAtencion();
-        Debug.Log("Atención restaurada al máximo: " + AtencionActual);
+        AtencionActual += 2.0f; // aumentar en 2 puntos
+        if (AtencionActual > AtencionMax)
+        {
+            AtencionActual = AtencionMax;
+            DistraccionActiva = false;
+            ActualizarBarraAtencion();
+            Debug.Log("Atención restaurada al máximo: " + AtencionActual);
+        }
+        return;
+            
     }
     //reducir la atencion muy lentamente mientras el jugador se mueve de por si, somos un gato, puede perder la atencion para lamerse
     public void ReducirAtencionLento()
