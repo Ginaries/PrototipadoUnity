@@ -24,12 +24,12 @@ public class Interactuable : MonoBehaviour
         if (distancia <= radioDeteccion && !jugadorCerca)
         {
             jugadorCerca = true;
-            player.MostrarCartelEmpujar(true);
+            player.MostrarCartel("EMPUJAR");
         }
         else if (distancia > radioDeteccion && jugadorCerca)
         {
             jugadorCerca = false;
-            player.MostrarCartelEmpujar(false);
+            player.OcultarCartel("EMPUJAR");
         }
 
         if (jugadorCerca && Input.GetKeyDown(KeyCode.E))

@@ -76,7 +76,7 @@ public class Seguridad : MonoBehaviour
 
         if (jugadorEnRango)
         {
-            gato.ReducirAtencionGradual();
+            gato.ReducirAtencionLento();
             MostrarTextoAyuda("¡Presiona E para distraer al guardia!");
 
             if (Input.GetKeyDown(KeyCode.E) && !gato.DistraccionActiva)

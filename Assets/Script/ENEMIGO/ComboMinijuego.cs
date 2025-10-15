@@ -21,10 +21,13 @@ public class ComboMinijuego : MonoBehaviour
 
     public System.Action<bool> OnComboTerminado;
 
+    [Header("UI_FEEDBACK")]
+    public GameObject CartelDistraccion;
     void Start()
     {
         if (comboText != null)
             comboText.gameObject.SetActive(false);
+        CartelDistraccion.SetActive(false);
     }
 
     void Update()
@@ -80,9 +83,11 @@ public class ComboMinijuego : MonoBehaviour
 
     public void Activar(PlayerController p)
     {
+
         player = p;
         if (comboText != null)
             comboText.gameObject.SetActive(true);
+        CartelDistraccion.SetActive(true);
 
         // genera 3 teclas aleatorias
         for (int i = 0; i < comboActual.Length; i++)
@@ -114,6 +119,7 @@ public class ComboMinijuego : MonoBehaviour
         if (player != null)
         {
             player.DistraccionActiva = false;
+            CartelDistraccion.SetActive(false);
             player.ActualizarBarraAtencion();
         }
     }

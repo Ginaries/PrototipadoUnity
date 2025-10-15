@@ -286,7 +286,6 @@ MonoBehaviour:
   bubbleUI: {fileID: 257679818}
   bubbleAnchor: {fileID: 248176317}
   mainCamera: {fileID: 330585545}
-  BurbujaDistraccion: {fileID: 292525892}
 --- !u!143 &30654636
 CharacterController:
   m_ObjectHideFlags: 0
@@ -1455,6 +1454,7 @@ MonoBehaviour:
   comboText: {fileID: 1273867500}
   textoEXCELENTE: {fileID: 1748852597}
   tiempoPorTecla: 3
+  CartelDistraccion: {fileID: 292525892}
 --- !u!4 &191165931
 Transform:
   m_ObjectHideFlags: 0

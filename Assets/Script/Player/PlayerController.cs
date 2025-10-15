@@ -59,28 +59,38 @@ public class PlayerController : MonoBehaviour
     public Transform BubbleEmpujar;        // Empty Object al lado del jugador
     public Camera MainCamera;              // La cámara principal
 
-    public void MostrarCartelEmpujar(bool mostrar)
+    public void MostrarCartel(string CUAL)
     {
-        if (CartelEmpujar != null)
+        if (CUAL == "EMPUJAR")
         {
-            CartelEmpujar.SetActive(mostrar);
-
-            if (mostrar && BubbleEmpujar != null && MainCamera != null)
-            {
-                Vector3 screenPos = MainCamera.WorldToScreenPoint(BubbleEmpujar.position);
-                CartelEmpujar.transform.position = screenPos;
-            }
+            CartelEmpujar.SetActive(true);
+            return;
+        }
+        if (CUAL == "Trepar")
+        {
+            bubbleUI.SetActive(true);
+            return;
         }
     }
+    public void OcultarCartel(string CUAL)
+    {
+        if (CUAL == "EMPUJAR")
+        {
+            CartelEmpujar.SetActive(false);
+            return;
+        }
+        if (CUAL == "Trepar")
+        {
+            bubbleUI.SetActive(false);
+            return;
+        }
+    }
+
     // 👇 --- Sistema de burbuja de interacción ---
     [Header("Burbuja de Interacción")]
     public GameObject bubbleUI;         // Asigná aquí el objeto de UI con el PNG
     public Transform bubbleAnchor;      // Un Empty encima de la cabeza
     public Camera mainCamera;
-
-    [Header("UI Feedback")]
-    public GameObject BurbujaDistraccion;
-    
     private RectTransform bubbleRect;
     private bool bubbleVisible = false;
 
@@ -104,6 +114,7 @@ public class PlayerController : MonoBehaviour
         controller = GetComponent<CharacterController>();
         Cursor.lockState = CursorLockMode.Locked;
         AtencionActual = AtencionMax;
+        CartelEmpujar.SetActive(false);
 
 
         if (bubbleUI != null)
@@ -112,10 +123,6 @@ public class PlayerController : MonoBehaviour
             bubbleUI.SetActive(false);
         }
 
-        if (BurbujaDistraccion != null)
-        {
-            BurbujaDistraccion.SetActive(false);
-        }
 
         if (mainCamera == null)
             mainCamera = Camera.main;
@@ -437,34 +444,7 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-    public void ReducirAtencionGradual()
-    {
-        if (!DistraccionActiva && Time.time >= proximoTick)
-        {
-            proximoTick = Time.time + tiempoReduccion;
-            AtencionActual = Mathf.Max(AtencionActual - 1, 0);
-            Debug.Log("Atención actual: " + AtencionActual);
 
-            if (AtencionActual <= 0)
-            {
-                DistraccionActiva = true;
-                Debug.Log("El gato está distraído, activar combo!");
-
-                if (BurbujaDistraccion != null)
-                    BurbujaDistraccion.SetActive(true);
-                    Debug.Log("Se activó la BURBUJAAAA");
-            
-                if (comboMinijuego != null)
-                {
-                    comboMinijuego.Activar(this);
-                }
-                else
-                {
-                    Debug.LogError("ERROR");
-                }
-            }
-        }
-    }
     // subir atención al completar el minijuego, debe realizar el combo correctamente, el mismo se va a activar cuando el jugador pierda toda la atencion    
     public void AumentarAtencion()
     {
@@ -489,7 +469,7 @@ public class PlayerController : MonoBehaviour
             proximoTick = Time.time + (tiempoReduccion * 5); // reducir más lento
             AtencionActual = Mathf.Max(AtencionActual - 1.0f, 0); // reducir menos
             Debug.Log("Atención actual (lento): " + AtencionActual);
-
+         
             if (AtencionActual <= 0)
             {
                 DistraccionActiva = true;

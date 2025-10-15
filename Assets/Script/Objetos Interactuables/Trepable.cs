@@ -43,7 +43,7 @@ public class Trepable : MonoBehaviour
     {
         var playerController = player.GetComponent<PlayerController>();
         if (playerController != null)
-            playerController.ShowBubble();
+            playerController.MostrarCartel("Trepar");
     }
 
     void OcultarBurbuja(GameObject player)
@@ -52,7 +52,7 @@ public class Trepable : MonoBehaviour
 
         var playerController = player.GetComponent<PlayerController>();
         if (playerController != null)
-            playerController.HideBubble();
+            playerController.OcultarCartel("Trepar");
     }
 
     public Vector3 GetPosicionTrepada()
