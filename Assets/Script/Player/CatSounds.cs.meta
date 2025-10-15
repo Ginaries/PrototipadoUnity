@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 7460b19bb45d02a4e82c571b66b92978
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - audioSource: {instanceID: 0}
+  - meowClip: {fileID: 8300000, guid: 2b0e9796064a5954189629a5cc49710c, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

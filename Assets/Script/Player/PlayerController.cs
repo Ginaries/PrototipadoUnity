@@ -6,6 +6,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
+    
     //no me aparece en el inspector
     [Header("Misiones")]
     public Misiones missionManager;
