@@ -7,12 +7,11 @@ public class Interactuable : MonoBehaviour
     public float pushForce = 5f;
     private bool jugadorCerca = false;
     private float radioDeteccion = 1.5f;
-    private PlayerController player;
+    public PlayerController player;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        player = FindObjectOfType<PlayerController>();
     }
 
     void Update()

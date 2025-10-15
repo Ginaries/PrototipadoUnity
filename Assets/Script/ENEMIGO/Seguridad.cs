@@ -35,6 +35,8 @@ public class Seguridad : MonoBehaviour
 
     // Nueva bandera para validar si el jugador está en rango
     private bool jugadorEnRango = false;
+    private bool PARAMISION = false;
+    private Misiones missionManager;
 
     void Start()
     {
@@ -49,8 +51,14 @@ public class Seguridad : MonoBehaviour
         }
     }
 
+    [System.Obsolete]
     void Update()
     {
+        if (missionManager == null)
+        {
+            missionManager = FindObjectOfType<Misiones>();
+        }
+
         // Animaciones
         if (Agente.velocity.magnitude > 0.1f)
             anim.CrossFade(Correr, 0.2f);
@@ -78,9 +86,13 @@ public class Seguridad : MonoBehaviour
         {
             gato.ReducirAtencionLento();
             MostrarTextoAyuda("¡Presiona E para distraer al guardia!");
-
+            // Si el jugador presiona E y no está ya en una distracción SIII TE ENCONTREE!!!
             if (Input.GetKeyDown(KeyCode.E) && !gato.DistraccionActiva)
             {
+                if (missionManager.misionActual == 1)
+                {
+                    PARAMISION = true;
+                }
                 gato.DistraccionActiva = true;
 
                 // Activar minijuego
@@ -102,6 +114,11 @@ public class Seguridad : MonoBehaviour
         if (exito && itemADroppear != null && jugadorEnRango)
         {
             Instantiate(itemADroppear, transform.position + Vector3.right, Quaternion.identity);
+        }
+        if (PARAMISION)
+        {
+            missionManager.CompletarMision();
+            PARAMISION = false;
         }
         StartCoroutine(CooldownDeteccion());
         LimpiarTextoAyuda();

@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class Recogible : MonoBehaviour
 {
+    public Inventario inventario;
     private Rigidbody rb;
     public string nombreObjeto = "Caja";
 
@@ -33,7 +34,6 @@ public class Recogible : MonoBehaviour
         // Si el jugador está cerca y presiona E, recoge el objeto
         if (jugadorCerca && Input.GetKeyDown(KeyCode.E))
         {
-            Inventario inventario = FindObjectOfType<Inventario>();
             if (inventario != null)
             {
                 inventario.AgregarObjeto(nombreObjeto);
