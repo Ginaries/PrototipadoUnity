@@ -1,53 +1,41 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 [RequireComponent(typeof(Rigidbody))]
 public class Interactuable : MonoBehaviour
 {
     private Rigidbody rb;
-    public Text TextoAyuda;
     public float pushForce = 5f;
     private bool jugadorCerca = false;
     private float radioDeteccion = 1.5f;
+    private PlayerController player;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        player = FindObjectOfType<PlayerController>();
     }
 
     void Update()
     {
-        Collider[] colliders = Physics.OverlapSphere(transform.position, radioDeteccion);
-        bool playerDetectado = false;
+        if (player == null) return;
 
-        foreach (var col in colliders)
-        {
-            if (col.CompareTag("Player"))
-            {
-                playerDetectado = true;
-                break;
-            }
-        }
+        float distancia = Vector3.Distance(transform.position, player.transform.position);
 
-        if (playerDetectado && !jugadorCerca)
+        if (distancia <= radioDeteccion && !jugadorCerca)
         {
             jugadorCerca = true;
-            MostrarAyuda();
+            player.MostrarCartelEmpujar(true);
         }
-        else if (!playerDetectado && jugadorCerca)
+        else if (distancia > radioDeteccion && jugadorCerca)
         {
             jugadorCerca = false;
-            if (TextoAyuda != null)
-                TextoAyuda.gameObject.SetActive(false);
+            player.MostrarCartelEmpujar(false);
         }
-    }
 
-    void MostrarAyuda()
-    {
-        if (TextoAyuda != null)
+        if (jugadorCerca && Input.GetKeyDown(KeyCode.E))
         {
-            TextoAyuda.gameObject.SetActive(true);
-            TextoAyuda.text = "Presiona 'E' para empujar";
+            Vector3 direccion = (transform.position - player.transform.position).normalized;
+            Interactuar(direccion);
         }
     }
 

@@ -51,13 +51,36 @@ public class PlayerController : MonoBehaviour
     private float pitch;
     private bool isInTheBox = false; // jugador en zona segura
 
-// 👇 --- Sistema de burbuja de interacción ---
-[Header("Burbuja de Interacción")]
-public GameObject bubbleUI;         // Asigná aquí el objeto de UI con el PNG
-public Transform bubbleAnchor;      // Un Empty encima de la cabeza
-public Camera mainCamera;
 
-private RectTransform bubbleRect;
+    
+    [Header("Cartel de Empujar")]
+    public GameObject CartelEmpujar;       // Tu imagen PNG dentro del Canvas
+    public Transform BubbleEmpujar;        // Empty Object al lado del jugador
+    public Camera MainCamera;              // La cámara principal
+
+    public void MostrarCartelEmpujar(bool mostrar)
+    {
+        if (CartelEmpujar != null)
+        {
+            CartelEmpujar.SetActive(mostrar);
+
+            if (mostrar && BubbleEmpujar != null && MainCamera != null)
+            {
+                Vector3 screenPos = MainCamera.WorldToScreenPoint(BubbleEmpujar.position);
+                CartelEmpujar.transform.position = screenPos;
+            }
+        }
+    }
+    // 👇 --- Sistema de burbuja de interacción ---
+    [Header("Burbuja de Interacción")]
+    public GameObject bubbleUI;         // Asigná aquí el objeto de UI con el PNG
+    public Transform bubbleAnchor;      // Un Empty encima de la cabeza
+    public Camera mainCamera;
+
+    [Header("UI Feedback")]
+    public GameObject BurbujaDistraccion;
+    
+    private RectTransform bubbleRect;
     private bool bubbleVisible = false;
 
     public bool IsInTheBox()
@@ -81,16 +104,23 @@ private RectTransform bubbleRect;
         Cursor.lockState = CursorLockMode.Locked;
         AtencionActual = AtencionMax;
 
-        
-    if (bubbleUI != null)
-    {
-        bubbleRect = bubbleUI.GetComponent<RectTransform>();
-        bubbleUI.SetActive(false);
-    }
 
-    if (mainCamera == null)
-        mainCamera = Camera.main;
+        if (bubbleUI != null)
+        {
+            bubbleRect = bubbleUI.GetComponent<RectTransform>();
+            bubbleUI.SetActive(false);
+        }
+
+        if (BurbujaDistraccion != null)
+        {
+            BurbujaDistraccion.SetActive(false);
+        }
+
+        if (mainCamera == null)
+            mainCamera = Camera.main;
     }
+    
+
     void Update()
     {
         if (Input.GetKey(KeyCode.M))
@@ -135,14 +165,15 @@ private RectTransform bubbleRect;
         }
     }
 
-public void HideBubble()
-{
-    if (bubbleUI != null)
+    public void HideBubble()
     {
-        bubbleUI.SetActive(false);
-        bubbleVisible = false;
+        if (bubbleUI != null)
+        {
+            bubbleUI.SetActive(false);
+            bubbleVisible = false;
+        }
     }
-}
+
     void ComportamientoDistraido()
     {
         // Cambiar de dirección cada cierto tiempo
@@ -156,6 +187,8 @@ public void HideBubble()
         Vector3 movimiento = direccionAleatoria * (speed * 0.5f);
         controller.Move(movimiento * Time.deltaTime);
 
+
+                    
         // 🧭 girar hacia la dirección de movimiento
         if (movimiento.magnitude > 0.1f)
         {
@@ -416,6 +449,10 @@ public void HideBubble()
                 DistraccionActiva = true;
                 Debug.Log("El gato está distraído, activar combo!");
 
+                if (BurbujaDistraccion != null)
+                    BurbujaDistraccion.SetActive(true);
+                    Debug.Log("Se activó la BURBUJAAAA");
+            
                 if (comboMinijuego != null)
                 {
                     comboMinijuego.Activar(this);
@@ -437,6 +474,8 @@ public void HideBubble()
             DistraccionActiva = false;
             ActualizarBarraAtencion();
             Debug.Log("Atención restaurada al máximo: " + AtencionActual);
+
+            
         }
         return;
 
@@ -454,7 +493,7 @@ public void HideBubble()
             {
                 DistraccionActiva = true;
                 Debug.Log("El gato está distraído, activar combo!");
-
+                    
                 if (comboMinijuego != null)
                 {
                     comboMinijuego.Activar(this);
