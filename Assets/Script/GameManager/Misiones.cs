@@ -1,12 +1,13 @@
 using UnityEngine;
-using TMPro; // Si usas TextMeshPro
+using TMPro;
+using UnityEngine.UI; // Si usas TextMeshPro
 
 public class Misiones : MonoBehaviour
 {
     public static Misiones Instance;
 
     [Header("Referencias UI")]
-    public TMP_Text textoMision; // Asignar desde el inspector
+    public Text textoMision; // Asignar desde el inspector
 
     [Header("Lista de misiones")]
     [TextArea(2, 5)]
@@ -25,11 +26,7 @@ public class Misiones : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject); // No se destruye al cambiar de escena
         }
-        else
-        {
-            Destroy(gameObject);
-            return;
-        }
+
     }
 
     private void Start()

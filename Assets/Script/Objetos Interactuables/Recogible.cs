@@ -52,7 +52,7 @@ public class Recogible : MonoBehaviour
         if (puerta != null)
         {
             puerta.TieneLlave();
-            Debug.Log("✅ La puerta ahora tiene la llave");
+            Misiones.Instance.CompletarMision();
         }
         else
         {

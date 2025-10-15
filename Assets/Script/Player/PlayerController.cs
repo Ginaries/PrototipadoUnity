@@ -313,6 +313,7 @@ public class PlayerController : MonoBehaviour
         {
             Transform objetivo = null;
             int EnQueMisionEstamos = missionManager.misionActual;
+            Debug.Log("Misión actual: " + EnQueMisionEstamos);
 
             if (EnQueMisionEstamos == 0 && llavePerdida != null)
                 objetivo = llavePerdida.transform;
