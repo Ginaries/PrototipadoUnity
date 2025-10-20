@@ -8,6 +8,7 @@ public class ComboMinijuego : MonoBehaviour
     public bool EstaActivo() => activo;
 
     [Header("UI")]
+    public GameObject panelCombo;
     public Text comboText;
     public Text textoEXCELENTE;
 
@@ -36,8 +37,10 @@ public class ComboMinijuego : MonoBehaviour
 
     void Start()
     {
+        panelCombo.SetActive(false);
         comboText?.gameObject.SetActive(false);
         CartelDistraccion.SetActive(false);
+
     }
 
     void Update()
@@ -86,6 +89,7 @@ public class ComboMinijuego : MonoBehaviour
     public void Activar(PlayerController p)
     {
         player = p;
+        panelCombo.SetActive(true);
         comboText?.gameObject.SetActive(true);
         CartelDistraccion.SetActive(true);
 
@@ -115,9 +119,11 @@ public class ComboMinijuego : MonoBehaviour
         if (modoTeclas)
         {
             teclaActual = teclas[Random.Range(0, teclas.Length)];
-            comboText.text = "Presiona: " + teclaActual;
+            string teclaMostrar = teclaActual.Replace("Alpha", "");
+            comboText.text = "Presiona: " + teclaMostrar;
             tiempoRestante = tiempoPorTecla;
         }
+
         else
         {
             comboText.text = "¡Haz click en el círculo!";
@@ -176,6 +182,7 @@ public class ComboMinijuego : MonoBehaviour
         LimpiarBotones();
 
         comboText?.gameObject.SetActive(false);
+        panelCombo.SetActive(false);
         textoEXCELENTE.text = "";
 
         // Ocultar cursor
