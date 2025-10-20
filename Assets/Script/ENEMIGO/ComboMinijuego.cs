@@ -2,14 +2,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
-
+using TMPro;
 public class ComboMinijuego : MonoBehaviour
 {
     public bool EstaActivo() => activo;
 
     [Header("UI")]
     public GameObject panelCombo;
-    public Text comboText;
+    public TextMeshProUGUI comboText;
     public Text textoEXCELENTE;
 
     [Header("Configuración General")]
