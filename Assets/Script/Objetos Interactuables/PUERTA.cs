@@ -20,6 +20,8 @@ public class PUERTA : MonoBehaviour
     {
         if (!tieneLlave || puertaAbierta || rotando) return;
         StartCoroutine(RotarPuerta());
+        
+
     }
 
     public void TieneLlave()
@@ -31,29 +33,24 @@ public class PUERTA : MonoBehaviour
     private IEnumerator RotarPuerta()
     {
         rotando = true;
+        Quaternion rotacionInicial = transform.rotation;
+        Quaternion rotacionFinal = rotacionInicial * Quaternion.Euler(0, gradosAbrir, 0);
+        float tiempoTranscurrido = 0f;
 
-        Quaternion inicio = transform.rotation;
-        Quaternion destino = Quaternion.Euler(0f, transform.rotation.eulerAngles.y + gradosAbrir, 0f);
-
-        float t = 0f;
-        while (t < 1f)
+        while (tiempoTranscurrido < duracionRotacion)
         {
-            t += Time.deltaTime / duracionRotacion;
-            transform.rotation = Quaternion.Slerp(inicio, destino, Mathf.SmoothStep(0f, 1f, t));
+            transform.rotation = Quaternion.Slerp(rotacionInicial, rotacionFinal, tiempoTranscurrido / duracionRotacion);
+            tiempoTranscurrido += Time.deltaTime;
             yield return null;
         }
 
-        transform.rotation = destino;
+        transform.rotation = rotacionFinal;
         puertaAbierta = true;
         rotando = false;
 
-        // 👇 mostrar cartel cuando termina de abrir
-        if (cartelPuertaAbierta != null)
-        {
-            StartCoroutine(MostrarCartel());
-        }
+        StartCoroutine(MostrarCartel());
     }
-
+    
     private IEnumerator MostrarCartel()
     {
         cartelPuertaAbierta.SetActive(true);

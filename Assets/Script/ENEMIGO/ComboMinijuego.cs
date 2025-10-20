@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
+using System.Collections.Generic;
 
 public class ComboMinijuego : MonoBehaviour
 {
@@ -9,24 +11,32 @@ public class ComboMinijuego : MonoBehaviour
     public Text comboText;
     public Text textoEXCELENTE;
 
-    [Header("Configuración")]
+    [Header("Configuración General")]
     public float tiempoPorTecla = 3f;
 
+    [Header("Mini botones estilo Osu!")]
+    public GameObject botonPrefab;
+    public RectTransform botonSpawnArea;
+    public float intervaloSpawnBoton = 1.5f;
+
     private string[] teclas = { "Q", "E", "Alpha1", "Alpha2", "Alpha3", "Space", "Z", "X", "C" };
-    private string[] comboActual = new string[3];
-    private int indice = 0;
+    private string teclaActual;
     private float tiempoRestante;
     private bool activo = false;
     private PlayerController player;
+    private bool modoTeclas; // true = teclas, false = botones
 
     public System.Action<bool> OnComboTerminado;
 
     [Header("UI_FEEDBACK")]
     public GameObject CartelDistraccion;
+
+    private List<GameObject> botonesActivos = new List<GameObject>();
+    private bool spawneando = false;
+
     void Start()
     {
-        if (comboText != null)
-            comboText.gameObject.SetActive(false);
+        comboText?.gameObject.SetActive(false);
         CartelDistraccion.SetActive(false);
     }
 
@@ -34,87 +44,143 @@ public class ComboMinijuego : MonoBehaviour
     {
         if (!activo) return;
 
-        tiempoRestante -= Time.unscaledDeltaTime;
+        tiempoRestante -= Time.deltaTime;
 
-        if (Input.anyKeyDown)
+        // Si el jugador ya tiene la atención al 100%, terminamos todo
+        if (player.AtencionActual >= player.AtencionMax)
         {
-            KeyCode teclaActual = (KeyCode)System.Enum.Parse(typeof(KeyCode), comboActual[indice]);
-
-            if (Input.GetKeyDown(teclaActual))
-            {
-                // ✅ Tecla correcta
-                player.AumentarAtencion(); // usa el método original
-                textoEXCELENTE.text = "¡EXCELENTE!";
-
-                // 🔹 Si ya tiene la atención al máximo, se termina el minijuego
-                if (player.AtencionActual >= player.AtencionMax)
-                {
-                    textoEXCELENTE.text = "¡Atención completa!";
-                    Desactivar();
-                    OnComboTerminado?.Invoke(true);
-                    return;
-                }
-
-                indice++;
-
-                if (indice >= comboActual.Length)
-                {
-                    // genera un nuevo combo
-                    Activar(player);
-                    return;
-                }
-
-                SiguienteTecla();
-            }
-            else
-            {
-                // 🔸 tecla incorrecta → solo mensaje, no se pierde
-                textoEXCELENTE.text = "Fallo...";
-            }
+            textoEXCELENTE.text = "¡Atención completa!";
+            Desactivar();
+            OnComboTerminado?.Invoke(true);
+            return;
         }
 
-        if (tiempoRestante <= 0)
+        // Si está en modo teclas
+        if (modoTeclas)
         {
-            // ⏰ si el tiempo se acaba, se pasa a un nuevo combo
-            textoEXCELENTE.text = "Tarde...";
-            Activar(player);
+            if (Input.anyKeyDown)
+            {
+                KeyCode tecla = (KeyCode)System.Enum.Parse(typeof(KeyCode), teclaActual);
+
+                if (Input.GetKeyDown(tecla))
+                {
+                    player.AumentarAtencion();
+                    textoEXCELENTE.text = "¡EXCELENTE!";
+                    NuevaRonda();
+                }
+                else
+                {
+                    textoEXCELENTE.text = "Fallo...";
+                    NuevaRonda();
+                }
+            }
+
+            if (tiempoRestante <= 0)
+            {
+                textoEXCELENTE.text = "Tarde...";
+                NuevaRonda();
+            }
         }
     }
 
     public void Activar(PlayerController p)
     {
-
         player = p;
-        if (comboText != null)
-            comboText.gameObject.SetActive(true);
+        comboText?.gameObject.SetActive(true);
         CartelDistraccion.SetActive(true);
 
-        // genera 3 teclas aleatorias
-        for (int i = 0; i < comboActual.Length; i++)
-        {
-            comboActual[i] = teclas[Random.Range(0, teclas.Length)];
-        }
+        // Mostrar cursor
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
 
-        indice = 0;
-        SiguienteTecla();
         activo = true;
-        Time.timeScale = 0.2f;
+        NuevaRonda();
     }
 
-    void SiguienteTecla()
+    void NuevaRonda()
     {
-        KeyCode teclaActual = (KeyCode)System.Enum.Parse(typeof(KeyCode), comboActual[indice]);
-        comboText.text = "Presiona: " + teclaActual;
-        tiempoRestante = tiempoPorTecla;
+        // Si ya está completo, termina
+        if (player.AtencionActual >= player.AtencionMax)
+        {
+            Desactivar();
+            return;
+        }
+
+        // Limpia botones viejos si quedaron
+        LimpiarBotones();
+
+        // Decide si toca botones o teclas
+        modoTeclas = Random.value < 0.5f;
+
+        if (modoTeclas)
+        {
+            teclaActual = teclas[Random.Range(0, teclas.Length)];
+            comboText.text = "Presiona: " + teclaActual;
+            tiempoRestante = tiempoPorTecla;
+        }
+        else
+        {
+            comboText.text = "¡Haz click en el círculo!";
+            if (!spawneando) StartCoroutine(SpawnBotonUnico());
+        }
+    }
+
+    IEnumerator SpawnBotonUnico()
+    {
+        spawneando = true;
+
+        Vector2 randomPos = new Vector2(
+            Random.Range(-botonSpawnArea.rect.width / 2f, botonSpawnArea.rect.width / 2f),
+            Random.Range(-botonSpawnArea.rect.height / 2f, botonSpawnArea.rect.height / 2f)
+        );
+
+        GameObject boton = Instantiate(botonPrefab, botonSpawnArea);
+        boton.transform.localPosition = randomPos;
+        boton.transform.localScale = Vector3.one;
+        boton.SetActive(true);
+        botonesActivos.Add(boton);
+
+        Button btn = boton.GetComponent<Button>();
+        bool fuePresionado = false;
+
+        btn.onClick.AddListener(() =>
+        {
+            if (!fuePresionado)
+            {
+                fuePresionado = true;
+                player.AumentarAtencion();
+                textoEXCELENTE.text = "¡Buen click!";
+                Destroy(boton);
+                botonesActivos.Remove(boton);
+                spawneando = false;
+                NuevaRonda();
+            }
+        });
+
+        yield return new WaitForSeconds(1.5f);
+
+        if (!fuePresionado)
+        {
+            textoEXCELENTE.text = "Fallaste el click";
+            Destroy(boton);
+            botonesActivos.Remove(boton);
+            spawneando = false;
+            NuevaRonda();
+        }
     }
 
     public void Desactivar()
     {
-        if (comboText != null)
-            comboText.gameObject.SetActive(false);
-
         activo = false;
-        Time.timeScale = 1f;
+        StopAllCoroutines();
+        LimpiarBotones();
+
+        comboText?.gameObject.SetActive(false);
+        textoEXCELENTE.text = "";
+
+        // Ocultar cursor
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
 
         if (player != null)
         {
@@ -122,5 +188,15 @@ public class ComboMinijuego : MonoBehaviour
             CartelDistraccion.SetActive(false);
             player.ActualizarBarraAtencion();
         }
+    }
+
+    void LimpiarBotones()
+    {
+        foreach (var boton in botonesActivos)
+        {
+            if (boton != null) Destroy(boton);
+        }
+        botonesActivos.Clear();
+        spawneando = false;
     }
 }

@@ -6,7 +6,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
-    
+
     //no me aparece en el inspector
     [Header("Misiones")]
     public Misiones missionManager;
@@ -53,7 +53,7 @@ public class PlayerController : MonoBehaviour
     private bool isInTheBox = false; // jugador en zona segura
 
 
-    
+
     [Header("Cartel de Empujar")]
     public GameObject CartelEmpujar;       // Tu imagen PNG dentro del Canvas
     public Transform BubbleEmpujar;        // Empty Object al lado del jugador
@@ -127,7 +127,7 @@ public class PlayerController : MonoBehaviour
         if (mainCamera == null)
             mainCamera = Camera.main;
     }
-    
+
 
     void Update()
     {
@@ -150,12 +150,12 @@ public class PlayerController : MonoBehaviour
         AgarrarCosas();
         Trepar();
 
-        
-    if (bubbleVisible && bubbleUI != null)
-    {
-        Vector3 screenPos = mainCamera.WorldToScreenPoint(bubbleAnchor.position);
-        bubbleRect.position = screenPos;
-    }
+
+        if (bubbleVisible && bubbleUI != null)
+        {
+            Vector3 screenPos = mainCamera.WorldToScreenPoint(bubbleAnchor.position);
+            bubbleRect.position = screenPos;
+        }
 
     }
     private float tiempoCambioDireccion = 0f;
@@ -196,7 +196,7 @@ public class PlayerController : MonoBehaviour
         controller.Move(movimiento * Time.deltaTime);
 
 
-                    
+
         // 🧭 girar hacia la dirección de movimiento
         if (movimiento.magnitude > 0.1f)
         {
@@ -306,7 +306,7 @@ public class PlayerController : MonoBehaviour
     {
         bool mirarObjetivoAhora = Input.GetKey(KeyCode.M);
 
-        Vector3 pivot = transform.position + Vector3.up * 0.5f;
+        Vector3 pivot = transform.position + Vector3.up * 1.2f;
         Quaternion rotation;
 
         if (mirarObjetivoAhora && missionManager != null)
@@ -457,7 +457,7 @@ public class PlayerController : MonoBehaviour
             ActualizarBarraAtencion();
             Debug.Log("Atención restaurada al máximo: " + AtencionActual);
 
-            
+
         }
         return;
 
@@ -470,12 +470,12 @@ public class PlayerController : MonoBehaviour
             proximoTick = Time.time + (tiempoReduccion * 5); // reducir más lento
             AtencionActual = Mathf.Max(AtencionActual - 1.0f, 0); // reducir menos
             Debug.Log("Atención actual (lento): " + AtencionActual);
-         
+
             if (AtencionActual <= 0)
             {
                 DistraccionActiva = true;
                 Debug.Log("El gato está distraído, activar combo!");
-                    
+
                 if (comboMinijuego != null)
                 {
                     comboMinijuego.Activar(this);

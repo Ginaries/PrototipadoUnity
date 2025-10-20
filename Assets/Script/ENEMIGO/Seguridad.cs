@@ -13,11 +13,10 @@ public class Seguridad : MonoBehaviour
     public string Correr;
     public string idle;
 
-    [Header("Patrulla Random")]
-    public float RangoPatrulla = 10f;
+    [Header("Patrulla por puntos específicos")]
+    public Transform[] puntosPatrulla; // 🔹 Lista de puntos vacíos (asigná desde el inspector)
     public float VelocidadPatrulla = 2f;
     public float TiempoEspera = 2f;
-    [Range(0f, 1f)] public float ProbabilidadDeParar = 0.3f;
     private bool esperando = false;
 
     [Header("Gato / Jugador")]
@@ -33,7 +32,6 @@ public class Seguridad : MonoBehaviour
     [Header("Drop de ítem")]
     public GameObject itemADroppear;
 
-    // Nueva bandera para validar si el jugador está en rango
     private bool jugadorEnRango = false;
     private bool PARAMISION = false;
     private Misiones missionManager;
@@ -43,7 +41,8 @@ public class Seguridad : MonoBehaviour
         if (Agente == null)
             Agente = GetComponent<NavMeshAgent>();
 
-        IrAPuntoAleatorio();
+        // 🔹 Ir a un punto de patrulla inicial
+        IrAPuntoPatrulla();
 
         if (comboMinijuego != null)
         {
@@ -65,13 +64,10 @@ public class Seguridad : MonoBehaviour
         else
             anim.CrossFade(idle, 0.2f);
 
-        // Patrulla
+        // 🔹 Patrulla por puntos fijos
         if (!esperando && !Agente.pathPending && Agente.remainingDistance <= Agente.stoppingDistance)
         {
-            if (Random.value < ProbabilidadDeParar)
-                StartCoroutine(Esperar());
-            else
-                IrAPuntoAleatorio();
+            StartCoroutine(Esperar());
         }
 
         if (enCooldown) return;
@@ -79,26 +75,21 @@ public class Seguridad : MonoBehaviour
         float distanciaGato = Vector3.Distance(transform.position, Objetivo.position);
         PlayerController gato = Objetivo.GetComponent<PlayerController>();
 
-        // Actualizamos si el jugador está en rango
         jugadorEnRango = (gato != null && distanciaGato <= RangoVision);
 
         if (jugadorEnRango)
         {
             gato.ReducirAtencionLento();
             MostrarTextoAyuda("¡Presiona E para distraer al guardia!");
-            // Si el jugador presiona E y no está ya en una distracción SIII TE ENCONTREE!!!
+
             if (Input.GetKeyDown(KeyCode.E) && !gato.DistraccionActiva)
             {
                 if (missionManager.misionActual == 1)
-                {
                     PARAMISION = true;
-                }
-                gato.DistraccionActiva = true;
 
-                // Activar minijuego
+                gato.DistraccionActiva = true;
                 comboMinijuego.gameObject.SetActive(true);
                 comboMinijuego.Activar(gato);
-
                 LimpiarTextoAyuda();
             }
         }
@@ -108,7 +99,28 @@ public class Seguridad : MonoBehaviour
         }
     }
 
-    //  Este método se llama al terminar el combo (bien o mal)
+    // 🔹 Ir a un punto vacío del array
+    void IrAPuntoPatrulla()
+    {
+        if (puntosPatrulla.Length == 0)
+            return;
+
+        int indice = Random.Range(0, puntosPatrulla.Length);
+        Transform destino = puntosPatrulla[indice];
+
+        Agente.speed = VelocidadPatrulla;
+        Agente.SetDestination(destino.position);
+        anim.Play(Correr);
+    }
+
+    IEnumerator Esperar()
+    {
+        esperando = true;
+        yield return new WaitForSeconds(TiempoEspera);
+        IrAPuntoPatrulla(); // 🔹 Luego va al siguiente punto
+        esperando = false;
+    }
+
     public void OnComboTerminado(bool exito)
     {
         if (exito && itemADroppear != null && jugadorEnRango)
@@ -124,7 +136,6 @@ public class Seguridad : MonoBehaviour
         LimpiarTextoAyuda();
     }
 
-    //  Coroutine de cooldown / periodo de gracia
     IEnumerator CooldownDeteccion()
     {
         enCooldown = true;
@@ -150,31 +161,9 @@ public class Seguridad : MonoBehaviour
         }
     }
 
-    IEnumerator Esperar()
-    {
-        esperando = true;
-        yield return new WaitForSeconds(TiempoEspera);
-        IrAPuntoAleatorio();
-        esperando = false;
-    }
-
-    void IrAPuntoAleatorio()
-    {
-        Vector3 randomDir = Random.insideUnitSphere * RangoPatrulla + transform.position;
-
-        if (NavMesh.SamplePosition(randomDir, out NavMeshHit hit, RangoPatrulla, NavMesh.AllAreas))
-        {
-            Agente.speed = VelocidadPatrulla;
-            Agente.SetDestination(hit.position);
-            anim.Play(Correr);
-        }
-    }
-
     void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, RangoVision);
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, RangoPatrulla);
     }
 }
