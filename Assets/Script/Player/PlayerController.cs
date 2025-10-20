@@ -2,6 +2,8 @@ using System.Collections;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
+using Image = UnityEngine.UI.Image;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
@@ -35,6 +37,11 @@ public class PlayerController : MonoBehaviour
 
     [Header("Combo")]
     public ComboMinijuego comboMinijuego;
+    [Header("Animation")]
+    public Animation anim;
+    public string caminar;
+    public string idle;
+
 
     [Header("Atención")]
     public float AtencionMax = 10f;
@@ -112,7 +119,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         controller = GetComponent<CharacterController>();
-        Cursor.lockState = CursorLockMode.Locked;
+        UnityEngine.Cursor.lockState = CursorLockMode.Locked;
         AtencionActual = AtencionMax;
         CartelEmpujar.SetActive(false);
 
@@ -251,8 +258,21 @@ public class PlayerController : MonoBehaviour
 
         Vector3 moveDir = (camForward * v + camRight * h).normalized;
 
+        // 🔹 Activar animaciones según movimiento
         if (moveDir.sqrMagnitude > 0.01f)
+        {
             transform.forward = moveDir;
+
+            // si no se está reproduciendo ya "caminar", la reproducimos
+            if (!anim.IsPlaying(caminar))
+                anim.CrossFade(caminar, 0.2f);
+        }
+        else
+        {
+            // si no se está reproduciendo ya "idle", la reproducimos
+            if (!anim.IsPlaying(idle))
+                anim.CrossFade(idle, 0.2f);
+        }
 
         Vector3 move = moveDir * speed;
 
@@ -261,7 +281,7 @@ public class PlayerController : MonoBehaviour
         {
             coyoteCounter = coyoteTime;
             if (!wasGrounded)
-                velocity.y = groundedGravity; // reset vertical
+                velocity.y = groundedGravity;
         }
         else
         {
@@ -397,16 +417,25 @@ public class PlayerController : MonoBehaviour
         {
             if (Input.GetKey(KeyCode.LeftShift))
             {
-                // subir hacia arriba mientras mantenga la tecla
+                // 🔹 Reproducir animación de caminar mientras trepa
+                if (anim != null && !anim.IsPlaying(caminar))
+                    anim.CrossFade(caminar, 0.2f);
+
+                // 🔹 Rotar hacia arriba suavemente (ligeramente, no exagerado)
+                Quaternion targetRot = Quaternion.LookRotation(transform.forward + Vector3.up * 0.3f);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 5f);
+
+                // 🔹 Subir hacia arriba mientras mantiene la tecla
                 controller.Move(Vector3.up * climbSpeed * Time.deltaTime);
 
-                // comprobar si ya superó la altura del objeto
+                // 🔹 Comprobar si ya superó la altura del objeto
                 if (climbingCol != null && transform.position.y >= climbingCol.bounds.max.y)
                 {
-                    Vector3 finalPos = new Vector3(transform.position.x,
-                                                   climbingCol.bounds.max.y + 0.05f,
-                                                   transform.position.z)
-                                      + transform.forward * 0.5f;
+                    Vector3 finalPos = new Vector3(
+                        transform.position.x,
+                        climbingCol.bounds.max.y + 0.05f,
+                        transform.position.z
+                    ) + transform.forward * 0.5f;
 
                     controller.enabled = false;
                     transform.position = finalPos;
@@ -414,18 +443,28 @@ public class PlayerController : MonoBehaviour
 
                     isClimbing = false;
                     climbingCol = null;
+
+                    // 🔹 Volver al idle y restaurar rotación
+                    if (anim != null)
+                        anim.CrossFade(idle, 0.2f);
+
+                    Quaternion flatRot = Quaternion.Euler(0, transform.eulerAngles.y, 0);
+                    transform.rotation = flatRot;
                 }
             }
             else
             {
-                // si suelta la tecla, cae
+                // 🔹 Si suelta la tecla, cae y vuelve a idle
                 isClimbing = false;
                 climbingCol = null;
+                if (anim != null)
+                    anim.CrossFade(idle, 0.2f);
             }
+
             return;
         }
 
-        // Detectar inicio de escalada
+        // --- Detectar inicio de escalada ---
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
             RaycastHit hit;
@@ -441,6 +480,10 @@ public class PlayerController : MonoBehaviour
                     isClimbing = true;
                     velocity = Vector3.zero;
                     climbingCol = hit.collider;
+
+                    // 🔹 Reproducir caminar apenas comienza la trepada
+                    if (anim != null)
+                        anim.CrossFade(caminar, 0.2f);
                 }
             }
         }
