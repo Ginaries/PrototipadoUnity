@@ -8,6 +8,7 @@ TagManager:
   - Trepable
   - Recogible
   - Humano
+  - Coin
   layers:
   - Default
   - TransparentFX

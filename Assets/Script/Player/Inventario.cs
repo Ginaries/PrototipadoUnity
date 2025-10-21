@@ -43,23 +43,23 @@ public class Inventario : MonoBehaviour
     }
 
 
- public void AgregarObjeto(string nombre)
-{
-    objetosRecogidos.Add(nombre);
-    Debug.Log("Recogiste: " + nombre);
+    public void AgregarObjeto(string nombre)
+    {
+        objetosRecogidos.Add(nombre);
+        Debug.Log("Recogiste: " + nombre);
 
 
-    if (nombre == "Llave")
-    {
-        Debug.Log("✅ Se activó el cartel de Llave"); // 👈 prueba visual
-        Llaves++;
-        MostrarCartelLlave();
+        if (nombre == "Llave")
+        {
+            Debug.Log("✅ Se activó el cartel de Llave"); // 👈 prueba visual
+            Llaves++;
+            MostrarCartelLlave();
+        }
+        else if (nombre == "moneda")
+        {
+            Monedas++;
+        }
     }
-    else if (nombre == "moneda")
-    {
-        Monedas++;
-    }
-}
 
 
     void MostrarCartelLlave()
@@ -74,5 +74,15 @@ public class Inventario : MonoBehaviour
         CartelLlave.SetActive(true);
         yield return new WaitForSeconds(duracion);
         CartelLlave.SetActive(false);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Coin"))
+        {
+            Monedas++;
+            print("Monedas: " + Monedas);
+            Destroy(other.gameObject); // destruye la moneda recogida
+        }
     }
 }
