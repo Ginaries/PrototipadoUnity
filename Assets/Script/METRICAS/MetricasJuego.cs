@@ -12,18 +12,20 @@ public class MetricasJuego : MonoBehaviour
 
     void Awake()
     {
-        // Crear carpeta y archivo si no existen
-        string carpeta = Application.persistentDataPath + "/Metricas";
+        // 📁 Carpeta de métricas en el Escritorio
+        string escritorio = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        string carpeta = Path.Combine(escritorio, "MetricasJuego");
+
         if (!Directory.Exists(carpeta))
             Directory.CreateDirectory(carpeta);
 
         rutaArchivo = Path.Combine(carpeta, "Metricas.txt");
 
-        // Leer cuántas sesiones hay para generar el nuevo ID
+        // Generar ID de sesión
         sesionID = ContarLineasArchivo(rutaArchivo) + 1;
 
         tiempoInicio = Time.time;
-        Debug.Log("Metrica iniciada. ID de sesión: " + sesionID);
+        Debug.Log($"Metrica iniciada (ID {sesionID}). Guardando en: {rutaArchivo}");
     }
 
     public void RegistrarMision(string nombreMision)
@@ -55,7 +57,7 @@ public class MetricasJuego : MonoBehaviour
             writer.WriteLine(); // salto de línea
         }
 
-        Debug.Log("Métrica guardada correctamente en: " + rutaArchivo);
+        Debug.Log("Métrica guardada correctamente en el Escritorio.");
     }
 
     private int ContarLineasArchivo(string ruta)
