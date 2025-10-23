@@ -202,9 +202,19 @@ public class PlayerController : MonoBehaviour
         Vector3 movimiento = direccionAleatoria * (speed * 0.5f);
         controller.Move(movimiento * Time.deltaTime);
 
+        //Agregar animación según movimiento
+        if (movimiento.magnitude > 0.1f)
+        {
+            if (!anim.IsPlaying(caminar))
+                anim.CrossFade(caminar, 0.2f);
+        }
+        else
+        {
+            if (!anim.IsPlaying(idle))
+                anim.CrossFade(idle, 0.2f);
+        }
 
-
-        // 🧭 girar hacia la dirección de movimiento
+        // girar hacia la dirección de movimiento
         if (movimiento.magnitude > 0.1f)
         {
             Quaternion rotacionObjetivo = Quaternion.LookRotation(movimiento);
@@ -220,6 +230,7 @@ public class PlayerController : MonoBehaviour
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
     }
+
 
 
     // --- Variables globales ---
