@@ -10,9 +10,12 @@ public class MetricasJuego : MonoBehaviour
     private string rutaArchivo;
     private static int sesionID;
 
+    // --- NUEVOS CONTADORES ---
+    private int inputsCorrectos = 0;
+    private int inputsIncorrectos = 0;
+
     void Awake()
     {
-        // 📁 Carpeta de métricas en el Escritorio
         string escritorio = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
         string carpeta = Path.Combine(escritorio, "MetricasJuego");
 
@@ -21,19 +24,33 @@ public class MetricasJuego : MonoBehaviour
 
         rutaArchivo = Path.Combine(carpeta, "Metricas.txt");
 
-        // Generar ID de sesión
+        // Generar ID de sesión (1 por línea)
         sesionID = ContarLineasArchivo(rutaArchivo) + 1;
 
         tiempoInicio = Time.time;
-        Debug.Log($"Metrica iniciada (ID {sesionID}). Guardando en: {rutaArchivo}");
+        Debug.Log($"Métrica iniciada (ID {sesionID}). Guardando en: {rutaArchivo}");
     }
 
+    // --- Registrar misión completada ---
     public void RegistrarMision(string nombreMision)
     {
         float tiempoActual = Time.time - tiempoInicio;
         tiemposMisiones[nombreMision] = tiempoActual;
 
         Debug.Log($"{nombreMision} completada en {tiempoActual:F2} segundos.");
+    }
+    // --- Registrar input correcto ---
+    public void RegistrarInputCorrecto()
+    {
+        inputsCorrectos++;
+        Debug.Log($"Input correcto registrado. Total: {inputsCorrectos}");
+    }
+
+    // --- Registrar input incorrecto ---
+    public void RegistrarInputIncorrecto()
+    {
+        inputsIncorrectos++;
+        Debug.Log($"Input incorrecto registrado. Total: {inputsIncorrectos}");
     }
 
     private void OnApplicationQuit()
@@ -47,6 +64,7 @@ public class MetricasJuego : MonoBehaviour
         {
             writer.Write($"ID {sesionID}\t");
 
+            // Escribir tiempos de misiones
             foreach (var mision in tiemposMisiones)
             {
                 TimeSpan ts = TimeSpan.FromSeconds(mision.Value);
@@ -54,7 +72,11 @@ public class MetricasJuego : MonoBehaviour
                 writer.Write($"{mision.Key}: {tiempoFormateado}\t");
             }
 
-            writer.WriteLine(); // salto de línea
+            // Agregar los inputs correctos e incorrectos
+            writer.Write($"inputs minijuegos Correctos: {inputsCorrectos}\t");
+            writer.Write($"inputs minijuegos Incorrectos: {inputsIncorrectos}\t");
+
+            writer.WriteLine(); // salto de línea (una línea por sesión)
         }
 
         Debug.Log("Métrica guardada correctamente en el Escritorio.");

@@ -81,6 +81,7 @@ public class LockersCOLORS : MonoBehaviour
     {
         if (puerta1 != null)
         {
+            FindAnyObjectByType<MetricasJuego>().RegistrarMision("Puzzle Lockers Colores Completado");
             puerta1.SetActive(false);
             Debug.Log("Puerta 1 abierta.");
         }
@@ -89,6 +90,7 @@ public class LockersCOLORS : MonoBehaviour
     // Reinicia la secuencia del jugador (visualmente puedes resetear luces, etc.)
     private void ReiniciarSecuencia()
     {
+        FindAnyObjectByType<MetricasJuego>().RegistrarMision("Puzzle Lockers Colores Fallido");
         secuenciaJugador.Clear();
         // Aquí podés añadir: ResetVisuales(), PlayErrorSound(), animaciones, etc.
         Debug.Log("Secuencia del jugador reiniciada.");

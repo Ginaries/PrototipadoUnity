@@ -69,11 +69,13 @@ public class ComboMinijuego : MonoBehaviour
                 {
                     player.AumentarAtencion();
                     textoEXCELENTE.text = "¡EXCELENTE!";
+                    FindAnyObjectByType<MetricasJuego>().RegistrarInputCorrecto();
                     NuevaRonda();
                 }
                 else
                 {
                     textoEXCELENTE.text = "Fallo...";
+                    FindAnyObjectByType<MetricasJuego>().RegistrarInputIncorrecto();
                     NuevaRonda();
                 }
             }
@@ -156,6 +158,7 @@ public class ComboMinijuego : MonoBehaviour
                 fuePresionado = true;
                 player.AumentarAtencion();
                 textoEXCELENTE.text = "¡Buen click!";
+                FindAnyObjectByType<MetricasJuego>().RegistrarInputCorrecto();
                 Destroy(boton);
                 botonesActivos.Remove(boton);
                 spawneando = false;
@@ -168,6 +171,7 @@ public class ComboMinijuego : MonoBehaviour
         if (!fuePresionado)
         {
             textoEXCELENTE.text = "Fallaste el click";
+            FindAnyObjectByType<MetricasJuego>().RegistrarInputIncorrecto();
             Destroy(boton);
             botonesActivos.Remove(boton);
             spawneando = false;
