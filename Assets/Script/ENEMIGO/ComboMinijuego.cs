@@ -10,7 +10,6 @@ public class ComboMinijuego : MonoBehaviour
     [Header("UI")]
     public GameObject panelCombo;
     public TextMeshProUGUI comboText;
-    public Text textoEXCELENTE;
 
     [Header("Configuración General")]
     public float tiempoPorTecla = 3f;
@@ -52,7 +51,6 @@ public class ComboMinijuego : MonoBehaviour
         // Si el jugador ya tiene la atención al 100%, terminamos todo
         if (player.AtencionActual >= player.AtencionMax)
         {
-            textoEXCELENTE.text = "¡Atención completa!";
             Desactivar();
             OnComboTerminado?.Invoke(true);
             return;
@@ -68,13 +66,11 @@ public class ComboMinijuego : MonoBehaviour
                 if (Input.GetKeyDown(tecla))
                 {
                     player.AumentarAtencion();
-                    textoEXCELENTE.text = "¡EXCELENTE!";
                     FindAnyObjectByType<MetricasJuego>().RegistrarInputCorrecto();
                     NuevaRonda();
                 }
                 else
                 {
-                    textoEXCELENTE.text = "Fallo...";
                     FindAnyObjectByType<MetricasJuego>().RegistrarInputIncorrecto();
                     NuevaRonda();
                 }
@@ -82,7 +78,6 @@ public class ComboMinijuego : MonoBehaviour
 
             if (tiempoRestante <= 0)
             {
-                textoEXCELENTE.text = "Tarde...";
                 NuevaRonda();
             }
         }
@@ -105,6 +100,10 @@ public class ComboMinijuego : MonoBehaviour
 
     void NuevaRonda()
     {
+        Debug.Log("Nueva ronda iniciada.");
+
+        if (comboText == null)
+            Debug.LogError("comboText no está asignado en el inspector!");
         // Si ya está completo, termina
         if (player.AtencionActual >= player.AtencionMax)
         {
@@ -157,7 +156,6 @@ public class ComboMinijuego : MonoBehaviour
             {
                 fuePresionado = true;
                 player.AumentarAtencion();
-                textoEXCELENTE.text = "¡Buen click!";
                 FindAnyObjectByType<MetricasJuego>().RegistrarInputCorrecto();
                 Destroy(boton);
                 botonesActivos.Remove(boton);
@@ -170,7 +168,6 @@ public class ComboMinijuego : MonoBehaviour
 
         if (!fuePresionado)
         {
-            textoEXCELENTE.text = "Fallaste el click";
             FindAnyObjectByType<MetricasJuego>().RegistrarInputIncorrecto();
             Destroy(boton);
             botonesActivos.Remove(boton);
@@ -187,7 +184,6 @@ public class ComboMinijuego : MonoBehaviour
 
         comboText?.gameObject.SetActive(false);
         panelCombo.SetActive(false);
-        textoEXCELENTE.text = "";
 
         // Ocultar cursor
         Cursor.visible = false;

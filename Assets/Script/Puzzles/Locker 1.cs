@@ -3,6 +3,8 @@ using UnityEngine;
 public class LockerColor : MonoBehaviour
 {
     public LockersCOLORS GestorLockers;
+    public GameObject CartelInteraccion;
+
     public string Color;
 
     private bool jugadorDentro = false;
@@ -12,6 +14,7 @@ public class LockerColor : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             jugadorDentro = true;
+            CartelInteraccion.SetActive(true);
         }
     }
 
@@ -20,6 +23,7 @@ public class LockerColor : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             jugadorDentro = false;
+            CartelInteraccion.SetActive(false);
         }
     }
 
@@ -28,7 +32,6 @@ public class LockerColor : MonoBehaviour
         if (jugadorDentro && Input.GetKeyDown(KeyCode.E))
         {
             GestorLockers.ActivarColor(Color);
-            Debug.Log("Locker activado: " + Color);
         }
     }
 }

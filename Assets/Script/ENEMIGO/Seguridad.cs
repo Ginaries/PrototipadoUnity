@@ -22,7 +22,6 @@ public class Seguridad : MonoBehaviour
     [Header("Gato / Jugador")]
     public float RangoVision = 10f;
     public Transform Objetivo;
-    public Text textoAlerta;
     public ComboMinijuego comboMinijuego;
 
     [Header("Detección y Cooldown")]
@@ -80,7 +79,6 @@ public class Seguridad : MonoBehaviour
         if (jugadorEnRango)
         {
             gato.ReducirAtencionLento();
-            MostrarTextoAyuda("¡Presiona E para distraer al guardia!");
 
             if (Input.GetKeyDown(KeyCode.E) && !gato.DistraccionActiva)
             {
@@ -90,12 +88,8 @@ public class Seguridad : MonoBehaviour
                 gato.DistraccionActiva = true;
                 comboMinijuego.gameObject.SetActive(true);
                 comboMinijuego.Activar(gato);
-                LimpiarTextoAyuda();
+
             }
-        }
-        else
-        {
-            LimpiarTextoAyuda();
         }
     }
 
@@ -133,7 +127,7 @@ public class Seguridad : MonoBehaviour
             PARAMISION = false;
         }
         StartCoroutine(CooldownDeteccion());
-        LimpiarTextoAyuda();
+
     }
 
     IEnumerator CooldownDeteccion()
@@ -143,24 +137,9 @@ public class Seguridad : MonoBehaviour
         enCooldown = false;
     }
 
-    public void MostrarTextoAyuda(string mensaje)
-    {
-        if (textoAlerta != null)
-        {
-            textoAlerta.gameObject.SetActive(true);
-            textoAlerta.text = mensaje;
-        }
-    }
+ 
 
-    public void LimpiarTextoAyuda()
-    {
-        if (textoAlerta != null)
-        {
-            textoAlerta.text = "";
-            textoAlerta.gameObject.SetActive(false);
-        }
-    }
-
+    
     void OnDrawGizmos()
     {
         Gizmos.color = Color.red;

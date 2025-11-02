@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,6 +10,8 @@ public class LockersCOLORS : MonoBehaviour
     public GameObject lockerLila;
     public GameObject lockerVerde;
     public GameObject lockerBlanco;
+    public GameObject CartelIncorrecto;
+    public GameObject CartelCorrecto;
 
     [Header("Puertas que se abren")]
     public GameObject puerta1;
@@ -42,6 +45,8 @@ public class LockersCOLORS : MonoBehaviour
             // Error: reiniciamos la secuencia del jugador
             Debug.Log($"Color incorrecto en la posición {idx}. Esperado '{secuenciaCorrecta[idx]}', recibido '{secuenciaJugador[idx]}'. Reiniciando.");
             ReiniciarSecuencia();
+            CartelIncorrecto.SetActive(true);
+            Invoke(nameof(DesactivarCartelIncorrecto), 2f);
             // Si querés retroalimentación visual/sonora, llamala aquí.
             return;
         }
@@ -76,17 +81,27 @@ public class LockersCOLORS : MonoBehaviour
             ReiniciarSecuencia();
         }
     }
-
+    private void DesactivarCartelIncorrecto()
+    {
+        CartelIncorrecto.SetActive(false);
+    }
     private void AbrirPuertas()
     {
         if (puerta1 != null)
         {
             FindAnyObjectByType<MetricasJuego>().RegistrarMision("Puzzle Lockers Colores Completado");
             puerta1.SetActive(false);
+            CartelCorrecto.SetActive(true);
+            Invoke(nameof(DesactivarCartelCorrecto), 2f);
             Debug.Log("Puerta 1 abierta.");
         }
     }
 
+
+    private void DesactivarCartelCorrecto()
+    {
+        CartelCorrecto.SetActive(false);
+    }
     // Reinicia la secuencia del jugador (visualmente puedes resetear luces, etc.)
     private void ReiniciarSecuencia()
     {
@@ -101,4 +116,5 @@ public class LockersCOLORS : MonoBehaviour
     {
         ReiniciarSecuencia();
     }
+
 }
