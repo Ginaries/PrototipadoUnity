@@ -12,6 +12,7 @@ public class LockersCOLORS : MonoBehaviour
     public GameObject lockerBlanco;
     public GameObject CartelIncorrecto;
     public GameObject CartelCorrecto;
+    public GameObject Trofeo;
 
     [Header("Puertas que se abren")]
     public GameObject puerta1;
@@ -94,6 +95,7 @@ public class LockersCOLORS : MonoBehaviour
             CartelCorrecto.SetActive(true);
             Invoke(nameof(DesactivarCartelCorrecto), 2f);
             Debug.Log("Puerta 1 abierta.");
+            Trofeo.SetActive(true);
         }
     }
 
