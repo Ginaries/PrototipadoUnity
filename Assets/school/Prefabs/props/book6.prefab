@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4307110252322276}
   - component: {fileID: 33684563509735478}
   - component: {fileID: 23558748208903900}
+  - component: {fileID: -8225901336034662488}
   m_Layer: 0
   m_Name: book6
   m_TagString: Untagged
@@ -89,3 +90,24 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &-8225901336034662488
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1313788938436624}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.11727597, y: 0.4640398, z: 0.295798}
+  m_Center: {x: -0.006669633, y: 0.22739667, z: 0.015538223}
