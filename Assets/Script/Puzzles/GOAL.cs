@@ -8,6 +8,9 @@ public class GOALcs : MonoBehaviour
     public GameObject Trofeo; // el cartel
     private bool ConsiguioElTrofeo = false;
     public GameObject CartelPuertaAbierta; // el cartel
+    public AudioSource audioSource;
+    public AudioClip correctoSound;
+
 
     [System.Obsolete]
     private async void OnTriggerEnter(Collider other)
@@ -20,7 +23,7 @@ public class GOALcs : MonoBehaviour
                 Trofeo.SetActive(true); // mostrar el trofeo
                 //DISPARAR SONIDO DE TROFEO CONSEGUIDO
                 CartelPuertaAbierta.SetActive(true); // mostrar el cartel
-
+                audioSource.PlayOneShot(correctoSound);
                 await System.Threading.Tasks.Task.Delay(2000);
                 ConsiguioElTrofeo = true;
                 FindObjectOfType<MetricasJuego>().RegistrarMision("Mision 1");
