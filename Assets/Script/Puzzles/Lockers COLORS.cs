@@ -13,6 +13,9 @@ public class LockersCOLORS : MonoBehaviour
     public GameObject CartelIncorrecto;
     public GameObject CartelCorrecto;
     public GameObject Trofeo;
+    public AudioSource audioSource;
+    public AudioClip sonidoCorrecto;
+    public AudioClip sonidoIncorrecto;
 
     [Header("Puertas que se abren")]
     public GameObject puerta1;
@@ -48,12 +51,14 @@ public class LockersCOLORS : MonoBehaviour
             ReiniciarSecuencia();
             CartelIncorrecto.SetActive(true);
             Invoke(nameof(DesactivarCartelIncorrecto), 2f);
+            sonarIncorrecto();
             // Si querés retroalimentación visual/sonora, llamala aquí.
             return;
         }
 
         // Si llegó hasta acá, el input en idx fue correcto.
         Debug.Log($"Color correcto en posición {idx}: {input}");
+        sonarCorrecto();
 
         // Si el jugador completó la misma longitud que la secuencia correcta -> éxito
         if (secuenciaJugador.Count >= secuenciaCorrecta.Length)
@@ -96,6 +101,7 @@ public class LockersCOLORS : MonoBehaviour
             Invoke(nameof(DesactivarCartelCorrecto), 2f);
             Debug.Log("Puerta 1 abierta.");
             Trofeo.SetActive(true);
+            sonarCorrecto();
         }
     }
 
@@ -118,5 +124,15 @@ public class LockersCOLORS : MonoBehaviour
     {
         ReiniciarSecuencia();
     }
+    public void sonarCorrecto()
+    {
+        Debug.Log("🔊 SonarCorrecto ejecutado");
+        audioSource.PlayOneShot(sonidoCorrecto);
+    }
 
+    public void sonarIncorrecto()
+    {
+        Debug.Log("🔊 SonarIncorrecto ejecutado");
+        audioSource.PlayOneShot(sonidoIncorrecto);
+    }
 }

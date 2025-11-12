@@ -10,7 +10,7 @@ namespace ithappy.Animals_FREE
         [SerializeField] private KeyCode downKey = KeyCode.K;
         [SerializeField] private KeyCode leftKey = KeyCode.J;
         [SerializeField] private KeyCode rightKey = KeyCode.L;
-        [SerializeField] private KeyCode runKey = KeyCode.Colon; // o KeyCode.Semicolon según layout
+        [SerializeField] private KeyCode runKey = KeyCode.O; // o KeyCode.Semicolon según layout
         [SerializeField] private KeyCode jumpKey = KeyCode.U; // opcional, si querés salto
 
         [Header("Camera")]
