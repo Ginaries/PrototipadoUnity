@@ -261,11 +261,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 633a82c347d369242ad74838428bec5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  missionManager: {fileID: 0}
+  llavePerdida: {fileID: 0}
+  guardia: {fileID: 0}
   speed: 5
   rotationSpeed: 720
   gravity: -9.81
-  acceleration: 10
-  deceleration: 10
   cameraTransform: {fileID: 330585546}
   mouseSensitivity: 3
   distanceFromPlayer: 2
@@ -273,10 +274,19 @@ MonoBehaviour:
   climbDistance: 0.2
   climbSpeed: 5
   comboMinijuego: {fileID: 191165930}
+  anim: {fileID: 0}
+  caminar: 
+  idle: 
   AtencionMax: 10
   AtencionActual: 10
   DistraccionActiva: 0
   barradeatencion: {fileID: 725181943}
+  CartelEmpujar: {fileID: 0}
+  BubbleEmpujar: {fileID: 0}
+  MainCamera: {fileID: 0}
+  bubbleUI: {fileID: 0}
+  bubbleAnchor: {fileID: 0}
+  mainCamera: {fileID: 0}
 --- !u!143 &30654636
 CharacterController:
   m_ObjectHideFlags: 0
@@ -331,9 +341,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4dafe7c4584c56a40be4671293e4c749, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  monedas: 0
-  llaves: 0
+  Monedas: 0
+  Llaves: 0
   objetosRecogidos: []
+  CartelLlave: {fileID: 0}
 --- !u!1 &31273674
 GameObject:
   m_ObjectHideFlags: 0
@@ -1257,9 +1268,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8cb4bfa935c976040ac67af2260a3b7c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ComboMinijuego
-  comboText: {fileID: 1273867500}
-  textoEXCELENTE: {fileID: 1748852597}
+  panelCombo: {fileID: 0}
+  comboText: {fileID: 0}
   tiempoPorTecla: 3
+  botonPrefab: {fileID: 0}
+  botonSpawnArea: {fileID: 0}
+  intervaloSpawnBoton: 1.5
+  CartelDistraccion: {fileID: 0}
 --- !u!4 &191165931
 Transform:
   m_ObjectHideFlags: 0
@@ -2157,8 +2172,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58db769235e473d4681f010b07b0c6fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Interactuable
-  TextoAyuda: {fileID: 1125161546}
   pushForce: 5
+  player: {fileID: 0}
 --- !u!65 &249611892
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3350,11 +3365,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 699095204}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &701556704 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7930292472013485077, guid: e1fe9edde7377834288dc8eab9b1d6b2, type: 3}
-  m_PrefabInstance: {fileID: 7311378582909482591}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &712850486
 GameObject:
   m_ObjectHideFlags: 0
@@ -3422,7 +3432,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Trepable
   climbPoint: {fileID: 0}
-  TextoAyuda: {fileID: 0}
   radioDeteccion: 1.5
 --- !u!54 &712850490
 Rigidbody:
@@ -3463,8 +3472,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58db769235e473d4681f010b07b0c6fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Interactuable
-  TextoAyuda: {fileID: 0}
   pushForce: 5
+  player: {fileID: 0}
 --- !u!65 &712850492
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3684,7 +3693,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Trepable
   climbPoint: {fileID: 0}
-  TextoAyuda: {fileID: 0}
   radioDeteccion: 1.5
 --- !u!54 &769640558
 Rigidbody:
@@ -3725,8 +3733,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58db769235e473d4681f010b07b0c6fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Interactuable
-  TextoAyuda: {fileID: 0}
   pushForce: 5
+  player: {fileID: 0}
 --- !u!65 &769640560
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3896,8 +3904,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58db769235e473d4681f010b07b0c6fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Interactuable
-  TextoAyuda: {fileID: 1125161546}
   pushForce: 5
+  player: {fileID: 0}
 --- !u!65 &807165592
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4379,7 +4387,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Trepable
   climbPoint: {fileID: 0}
-  TextoAyuda: {fileID: 1125161546}
   radioDeteccion: 1.5
 --- !u!54 &959922125
 Rigidbody:
@@ -4655,7 +4662,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Trepable
   climbPoint: {fileID: 0}
-  TextoAyuda: {fileID: 1125161546}
   radioDeteccion: 1.5
 --- !u!54 &1000532817
 Rigidbody:
@@ -6899,7 +6905,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Trepable
   climbPoint: {fileID: 0}
-  TextoAyuda: {fileID: 0}
   radioDeteccion: 1.5
 --- !u!54 &1519973802
 Rigidbody:
@@ -6940,8 +6945,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58db769235e473d4681f010b07b0c6fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Interactuable
-  TextoAyuda: {fileID: 0}
   pushForce: 5
+  player: {fileID: 0}
 --- !u!65 &1519973804
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7764,7 +7769,8 @@ MonoBehaviour:
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_fontSharedMaterials: []
+  m_fontSharedMaterials:
+  - {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
@@ -8479,13 +8485,11 @@ MonoBehaviour:
   anim: {fileID: 1811444867}
   Correr: Running
   idle: Breathing Idle
-  RangoPatrulla: 10
+  puntosPatrulla: []
   VelocidadPatrulla: 6
   TiempoEspera: 2
-  ProbabilidadDeParar: 0.176
   RangoVision: 17.3
   Objetivo: {fileID: 30654637}
-  textoAlerta: {fileID: 1748852597}
   comboMinijuego: {fileID: 191165930}
   tiempoGracia: 10
   itemADroppear: {fileID: 7930292472013485077, guid: e1fe9edde7377834288dc8eab9b1d6b2, type: 3}
@@ -8873,8 +8877,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PUERTA
   tieneLlave: 0
-  llave: {fileID: 701556704}
   puertaAbierta: 0
+  gradosAbrir: 90
+  duracionRotacion: 0.6
+  cartelPuertaAbierta: {fileID: 0}
+  duracionCartel: 2
 --- !u!4 &1943960540
 Transform:
   m_ObjectHideFlags: 0

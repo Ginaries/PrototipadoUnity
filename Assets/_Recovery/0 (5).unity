@@ -276,6 +276,9 @@ MonoBehaviour:
   climbDistance: 0.2
   climbSpeed: 5
   comboMinijuego: {fileID: 191165930}
+  anim: {fileID: 0}
+  caminar: 
+  idle: 
   AtencionMax: 10
   AtencionActual: 10
   DistraccionActiva: 0
@@ -1381,8 +1384,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8cb4bfa935c976040ac67af2260a3b7c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ComboMinijuego
-  comboText: {fileID: 1273867500}
-  textoEXCELENTE: {fileID: 1748852597}
+  panelCombo: {fileID: 0}
+  comboText: {fileID: 0}
   tiempoPorTecla: 3
   botonPrefab: {fileID: 6867611383335131905, guid: 8e969dd43bcc31349b51651bf514ec6d, type: 3}
   botonSpawnArea: {fileID: 1069685765}
@@ -9639,7 +9642,6 @@ MonoBehaviour:
   TiempoEspera: 2
   RangoVision: 3
   Objetivo: {fileID: 30654637}
-  textoAlerta: {fileID: 1748852597}
   comboMinijuego: {fileID: 191165930}
   tiempoGracia: 10
   itemADroppear: {fileID: 7930292472013485077, guid: e1fe9edde7377834288dc8eab9b1d6b2, type: 3}
