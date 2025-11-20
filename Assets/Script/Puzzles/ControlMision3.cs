@@ -15,7 +15,7 @@ public class ControlMision3 : MonoBehaviour
 
     private int indiceActual = 0;
 
-       public void RegistrarBanco(int idBanco)
+    public void RegistrarBanco(int idBanco)
     {
         Debug.Log("Pisaste banco " + idBanco);
 
@@ -32,20 +32,10 @@ public class ControlMision3 : MonoBehaviour
         }
         else
         {
-            ReiniciarPuzzle();
+            CartelIncorrecto.SetActive(true);
+            Invoke("OcultarCartelIncorrecto", 1f);
+            audioSource.PlayOneShot(sonidoIncorrecto);
         }
-    }
-
-    private void ReiniciarPuzzle()
-    {
-        
-        Debug.Log("Banco incorrecto. Reiniciando...");
-        indiceActual = 0;
-        CartelIncorrecto.SetActive(true);
-        //hagamos que el cartel dure un segundo y luego desaparezca
-        Invoke("OcultarCartelIncorrecto", 1f);
-        audioSource.PlayOneShot(sonidoIncorrecto);
-
     }
 
     private void PuzzleCompletado()
@@ -64,11 +54,11 @@ public class ControlMision3 : MonoBehaviour
     private void OcultarCartelIncorrecto()
     {
         CartelIncorrecto.SetActive(false);
-        
+
     }
     private void OcultarCartelCorrecto()
     {
         CartelCorrecto.SetActive(false);
-        
+
     }
 }

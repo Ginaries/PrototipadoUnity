@@ -503,7 +503,7 @@ public class PlayerController : MonoBehaviour
     // subir atención al completar el minijuego, debe realizar el combo correctamente, el mismo se va a activar cuando el jugador pierda toda la atencion    
     public void AumentarAtencion()
     {
-        AtencionActual += 2.0f; // aumentar en 2 puntos
+        AtencionActual += 8.0f; // aumentar en 2 puntos
         if (AtencionActual > AtencionMax)
         {
             AtencionActual = AtencionMax;
