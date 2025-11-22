@@ -26,7 +26,7 @@ public class GOALcs : MonoBehaviour
                 audioSource.PlayOneShot(correctoSound);
                 await System.Threading.Tasks.Task.Delay(2000);
                 ConsiguioElTrofeo = true;
-                FindObjectOfType<MetricasJuego>().RegistrarMision("Mision 1");
+                FindObjectOfType<MetricasJuego>().CompletarMision("Mision 1 - GOL ");
                 CartelPuertaAbierta.SetActive(false); // ocultarlo después de 2 segundos
             }
         }

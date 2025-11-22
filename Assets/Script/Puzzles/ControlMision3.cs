@@ -43,6 +43,7 @@ public class ControlMision3 : MonoBehaviour
         Debug.Log("¡Puzzle completado!");
         if (puerta != null)
         {
+            FindAnyObjectByType<MetricasJuego>().CompletarMision("Mision 3 - Bancos Saltando Completado");
             puerta.SetActive(false); // por ejemplo, la puerta desaparece
             TrofeoMision3.SetActive(true);
             CartelCorrecto.SetActive(true);

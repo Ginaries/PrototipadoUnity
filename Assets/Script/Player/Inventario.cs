@@ -7,7 +7,7 @@ public class Inventario : MonoBehaviour
 {
     public int Monedas;
     public int Llaves;
-
+    public GameObject Moneditas;
 
     public List<string> objetosRecogidos = new List<string>();
 
@@ -80,7 +80,8 @@ public class Inventario : MonoBehaviour
     {
         if (other.CompareTag("Coin"))
         {
-            Monedas++;
+            Moneditas moneditaScript = Moneditas.GetComponent<Moneditas>();
+            moneditaScript.contadorMonedas += 1;
             print("Monedas: " + Monedas);
             Destroy(other.gameObject); // destruye la moneda recogida
         }

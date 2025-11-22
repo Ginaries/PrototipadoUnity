@@ -3,18 +3,30 @@ using System.IO;
 using System.Collections.Generic;
 using System;
 
+[Serializable]
+public struct DatosMision
+{
+    public string nombre;
+    public float tiempo;
+    public string estado;   // "completada" o "fallida"
+}
+
 public class MetricasJuego : MonoBehaviour
 {
-    private float tiempoInicio;
-    private Dictionary<string, float> tiemposMisiones = new Dictionary<string, float>();
-    private string rutaArchivo;
+    private float tiempoInicioSesion;   // TIMER GLOBAL REAL
     private static int sesionID;
 
-    // --- NUEVOS CONTADORES ---
+    private string rutaArchivo;
+
+    private List<DatosMision> misiones = new List<DatosMision>();
+
     private int inputsCorrectos = 0;
     private int inputsIncorrectos = 0;
 
-    void Awake()
+    // ----------------------------------------------------------
+    // START — Inicia el timer global cuando arranca el gameplay
+    // ----------------------------------------------------------
+    void Start()
     {
         string escritorio = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
         string carpeta = Path.Combine(escritorio, "MetricasJuego");
@@ -24,67 +36,114 @@ public class MetricasJuego : MonoBehaviour
 
         rutaArchivo = Path.Combine(carpeta, "Metricas.txt");
 
-        // Generar ID de sesión (1 por línea)
         sesionID = ContarLineasArchivo(rutaArchivo) + 1;
 
-        tiempoInicio = Time.time;
-        Debug.Log($"Métrica iniciada (ID {sesionID}). Guardando en: {rutaArchivo}");
+        tiempoInicioSesion = Time.time; // TIMER GLOBAL
+
+        Debug.Log($"Sesión iniciada (ID {sesionID}). Timer global inicializado.");
     }
 
-    // --- Registrar misión completada ---
-    public void RegistrarMision(string nombreMision)
+    // ----------------------------------------------------------
+    // MISIÓN COMPLETADA (USAMOS EL TIMER GLOBAL)
+    // ----------------------------------------------------------
+    public void CompletarMision(string nombre)
     {
-        float tiempoActual = Time.time - tiempoInicio;
-        tiemposMisiones[nombreMision] = tiempoActual;
+        float tiempo = Time.time - tiempoInicioSesion;   // tiempo global desde el inicio
 
-        Debug.Log($"{nombreMision} completada en {tiempoActual:F2} segundos.");
+        misiones.Add(new DatosMision
+        {
+            nombre = nombre,
+            tiempo = tiempo,
+            estado = "completada"
+        });
+
+        Debug.Log($"Misión '{nombre}' completada en {tiempo:F2} segundos (timer global).");
     }
-    // --- Registrar input correcto ---
+
+    // ----------------------------------------------------------
+    // MISIÓN FALLIDA (USAMOS EL TIMER GLOBAL)
+    // ----------------------------------------------------------
+    public void FallarMision(string nombre)
+    {
+        float tiempo = Time.time - tiempoInicioSesion;
+
+        misiones.Add(new DatosMision
+        {
+            nombre = nombre,
+            tiempo = tiempo,
+            estado = "fallida"
+        });
+
+        Debug.Log($"Misión '{nombre}' fallida en {tiempo:F2} segundos (timer global).");
+    }
+
+    // ----------------------------------------------------------
+    //  REGISTRO DE INPUTS
+    // ----------------------------------------------------------
     public void RegistrarInputCorrecto()
     {
         inputsCorrectos++;
-        Debug.Log($"Input correcto registrado. Total: {inputsCorrectos}");
     }
 
-    // --- Registrar input incorrecto ---
     public void RegistrarInputIncorrecto()
     {
         inputsIncorrectos++;
-        Debug.Log($"Input incorrecto registrado. Total: {inputsIncorrectos}");
     }
 
+    // ----------------------------------------------------------
+    // GUARDAMOS AL SALIR
+    // ----------------------------------------------------------
     private void OnApplicationQuit()
     {
         GuardarMetrica();
     }
 
+    // ----------------------------------------------------------
+    // GUARDADO
+    // ----------------------------------------------------------
     private void GuardarMetrica()
     {
         using (StreamWriter writer = new StreamWriter(rutaArchivo, true))
         {
             writer.Write($"ID {sesionID}\t");
 
-            // Escribir tiempos de misiones
-            foreach (var mision in tiemposMisiones)
+            foreach (var m in misiones)
             {
-                TimeSpan ts = TimeSpan.FromSeconds(mision.Value);
+                TimeSpan ts = TimeSpan.FromSeconds(m.tiempo);
                 string tiempoFormateado = $"{ts.Minutes:D2}:{ts.Seconds:D2}";
-                writer.Write($"{mision.Key}: {tiempoFormateado}\t");
+                writer.Write($"{m.nombre} ({m.estado}): {tiempoFormateado}\t");
             }
 
-            // Agregar los inputs correctos e incorrectos
-            writer.Write($"inputs minijuegos Correctos: {inputsCorrectos}\t");
-            writer.Write($"inputs minijuegos Incorrectos: {inputsIncorrectos}\t");
-
-            writer.WriteLine(); // salto de línea (una línea por sesión)
+            writer.Write($"Inputs Correctos: {inputsCorrectos}\t");
+            writer.Write($"Inputs Incorrectos: {inputsIncorrectos}\t");
+            writer.WriteLine();
         }
 
-        Debug.Log("Métrica guardada correctamente en el Escritorio.");
+        Debug.Log("Métrica guardada correctamente.");
+    }
+
+    // ----------------------------------------------------------
+    // NUEVA SESIÓN
+    // ----------------------------------------------------------
+    public void GuardarYReiniciarSesion()
+    {
+        GuardarMetrica();
+
+        sesionID++;
+        misiones.Clear();
+        inputsCorrectos = 0;
+        inputsIncorrectos = 0;
+
+        tiempoInicioSesion = Time.time;  // reset del timer global
+
+        Debug.Log($"Nueva sesión iniciada con ID {sesionID}. Timer global reiniciado.");
     }
 
     private int ContarLineasArchivo(string ruta)
     {
-        if (!File.Exists(ruta)) return 0;
+        if (!File.Exists(ruta))
+            return 0;
+
         return File.ReadAllLines(ruta).Length;
     }
 }

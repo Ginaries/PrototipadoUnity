@@ -347,6 +347,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   Monedas: 0
   Llaves: 0
+  Moneditas: {fileID: 0}
   objetosRecogidos: []
   CartelLlave: {fileID: 1980304882}
 --- !u!114 &30654639

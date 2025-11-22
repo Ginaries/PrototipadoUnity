@@ -17,6 +17,7 @@ public class GestorPuzzle4 : MonoBehaviour
         if (!trabajorealizado && placa1pisada && placa2pisada)
         {
             Debug.Log("Puzzle 4 completado");
+            FindAnyObjectByType<MetricasJuego>().CompletarMision("Puzzle 4 - Placas Completado");
             audioSource.PlayOneShot(clipPuzzleCompletado);
             trabajorealizado = true;
             puertaFinal.SetActive(false);

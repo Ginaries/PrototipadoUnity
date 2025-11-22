@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.SceneManagement; 
+using UnityEngine.SceneManagement;
 public class ExitGame : MonoBehaviour
 {
     void Update()
@@ -7,6 +7,7 @@ public class ExitGame : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             SceneManager.LoadScene("Menu");
+            FindAnyObjectByType<MetricasJuego>().GuardarYReiniciarSesion();
         }
     }
 }
